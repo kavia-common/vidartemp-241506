@@ -182,13 +182,23 @@ export function analyzeGovernance(payload: unknown): AnalyzeGovernanceResult {
     : undefined;
 
   const input: GovernanceEvaluationInput = { system, downstreamSystemIds };
-  const result = runDeterministicGovernanceEngine(input);
+  const engineResult = runDeterministicGovernanceEngine(input);
+
+  // Contract-shape hardening:
+  // - Prefer existing normalizationWarnings if present (defensive; engine does not set it today).
+  // - Otherwise ensure it is an empty array.
+  const engineRecord = engineResult as unknown as Record<string, unknown>;
+  let normalizationWarnings: NormalizationWarning[] = Array.isArray(
+    engineRecord.normalizationWarnings,
+  )
+    ? (engineRecord.normalizationWarnings as NormalizationWarning[])
+    : [];
 
   // Defensive safeguard:
   // If after normalization system.sovereigntyLevel and components are both undefined,
   // attach a deterministic structured warning note (no console output).
   if (system.sovereigntyLevel === undefined && system.components === undefined) {
-    (result as unknown as Record<string, unknown>).normalizationWarnings = [
+    normalizationWarnings = [
       {
         code: "ANALYZER_NORMALIZATION_MISSING_SYSTEM_CONTEXT",
         message:
@@ -202,14 +212,11 @@ export function analyzeGovernance(payload: unknown): AnalyzeGovernanceResult {
     ];
   }
 
-  // Contract-shape hardening: always return normalizationWarnings as an array.
-  const resultRecord = result as unknown as Record<string, unknown>;
-  if (!Array.isArray(resultRecord.normalizationWarnings)) {
-    resultRecord.normalizationWarnings = [];
-  }
-
   // Analyzer-level policy version stamp (must not affect engine semantics).
-  resultRecord.policyVersion = POLICY_VERSION;
-
-  return result as AnalyzeGovernanceResult;
+  // Return a new object rather than mutating the engine result.
+  return {
+    ...engineResult,
+    normalizationWarnings,
+    policyVersion: POLICY_VERSION,
+  } as AnalyzeGovernanceResult;
 }
