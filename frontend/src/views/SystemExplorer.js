@@ -374,7 +374,7 @@ function EvaluationsTab({ systemId }) {
     setRuleFilter("All");
   }, [systemId]);
 
-  const items = d?.items ?? [];
+  const items = useMemo(() => d?.items ?? [], [d]);
 
   // Dynamic rule options are derived from the violations currently present in the loaded items.
   const availableRuleCodes = Array.from(
