@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState, useCallback } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import {
   Server,
   ChevronRight,
@@ -49,7 +49,7 @@ const EmptyRow = ({ cols, label }) => (
   </tr>
 );
 
-/* ─────────────────────────────────────────────────────────────────────────────
+/* ────────────────────────────────────────────────────────────────────────────
    Tab: Risk Summary
 ──────────────────────────────────────────────────────────────────────────── */
 function RiskTab({ systemId }) {
@@ -68,8 +68,20 @@ function RiskTab({ systemId }) {
       .finally(() => setLoading(false));
   }, [systemId]);
 
-  if (loading) return <div className="p-4">{<Spinner />}</div>;
-  if (error) return <div className="p-4">{<Err msg={error} />}</div>;
+  if (loading) {
+    return (
+      <div className="p-4">
+        <Spinner />
+      </div>
+    );
+  }
+  if (error) {
+    return (
+      <div className="p-4">
+        <Err msg={error} />
+      </div>
+    );
+  }
   if (!d) return null;
 
   const StatRow = ({ label, value, accent }) => {
@@ -148,7 +160,7 @@ function RiskTab({ systemId }) {
   );
 }
 
-/* ─────────────────────────────────────────────────────────────────────────────
+/* ────────────────────────────────────────────────────────────────────────────
    Tab: Dependency Map
 ──────────────────────────────────────────────────────────────────────────── */
 function DependencyTab({ systemId }) {
@@ -167,8 +179,20 @@ function DependencyTab({ systemId }) {
       .finally(() => setLoading(false));
   }, [systemId]);
 
-  if (loading) return <div className="p-4">{<Spinner />}</div>;
-  if (error) return <div className="p-4">{<Err msg={error} />}</div>;
+  if (loading) {
+    return (
+      <div className="p-4">
+        <Spinner />
+      </div>
+    );
+  }
+  if (error) {
+    return (
+      <div className="p-4">
+        <Err msg={error} />
+      </div>
+    );
+  }
   if (!d) return null;
 
   return (
@@ -306,7 +330,7 @@ function DependencyTab({ systemId }) {
   );
 }
 
-/* ─────────────────────────────────────────────────────────────────────────────
+/* ────────────────────────────────────────────────────────────────────────────
    Tab: Recent Evaluations
 ──────────────────────────────────────────────────────────────────────────── */
 function EvaluationsTab({ systemId }) {
@@ -350,11 +374,7 @@ function EvaluationsTab({ systemId }) {
     setRuleFilter("All");
   }, [systemId]);
 
-  if (loading) return <div className="p-4">{<Spinner />}</div>;
-  if (error) return <div className="p-4">{<Err msg={error} />}</div>;
-  if (!d) return null;
-
-  const items = d.items ?? [];
+  const items = d?.items ?? [];
 
   // Dynamic rule options are derived from the violations currently present in the loaded items.
   const availableRuleCodes = Array.from(
@@ -372,10 +392,13 @@ function EvaluationsTab({ systemId }) {
       : "All";
 
   useEffect(() => {
+    // Preserve existing behavior: do not auto-normalize during loading/empty states.
+    if (loading || !d) return;
+
     if (ruleFilter !== normalizedRuleFilter) {
       setRuleFilter(normalizedRuleFilter);
     }
-  }, [normalizedRuleFilter, ruleFilter]);
+  }, [d, loading, normalizedRuleFilter, ruleFilter]);
 
   const governanceSummary = useMemo(() => {
     // Compute summary from the same violations that are currently displayed (i.e., after
@@ -410,6 +433,22 @@ function EvaluationsTab({ systemId }) {
   const toggleViolation = (key) => {
     setExpandedViolationKeys((prev) => ({ ...prev, [key]: !prev[key] }));
   };
+
+  if (loading) {
+    return (
+      <div className="p-4">
+        <Spinner />
+      </div>
+    );
+  }
+  if (error) {
+    return (
+      <div className="p-4">
+        <Err msg={error} />
+      </div>
+    );
+  }
+  if (!d) return null;
 
   return (
     <div className="p-4 flex flex-col lg:flex-row gap-4">
@@ -490,8 +529,7 @@ function EvaluationsTab({ systemId }) {
                                 const key = `${ev.event_id}:${i}:${v.rule_code}`;
                                 const md = getRuleMetadata(v.rule_code);
                                 const hasMd =
-                                  !!md &&
-                                  (!!md.description || !!md.documentReference);
+                                  !!md && (!!md.description || !!md.documentReference);
                                 const expanded = !!expandedViolationKeys[key];
 
                                 // If metadata is missing, we must display ONLY the rule code (no crash, no fallback text).
@@ -632,7 +670,7 @@ function EvaluationsTab({ systemId }) {
   );
 }
 
-/* ─────────────────────────────────────────────────────────────────────────────
+/* ────────────────────────────────────────────────────────────────────────────
    System Detail Panel
 ──────────────────────────────────────────────────────────────────────────── */
 const TABS = [
@@ -707,7 +745,7 @@ function SystemDetail({ system, onClose }) {
   );
 }
 
-/* ─────────────────────────────────────────────────────────────────────────────
+/* ────────────────────────────────────────────────────────────────────────────
    System Explorer (root view)
 ──────────────────────────────────────────────────────────────────────────── */
 export default function SystemExplorer() {
