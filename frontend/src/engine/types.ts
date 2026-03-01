@@ -107,6 +107,24 @@ export interface GovernanceScore {
   informationalCount: number;
 }
 
+/**
+ * Analyzer-level warning emitted during payload normalization.
+ *
+ * NOTE:
+ * - This is not produced by the deterministic engine core today.
+ * - It is part of the analyzer's public contract shape (see src/analyzer.ts).
+ */
+export interface NormalizationWarning {
+  /** Stable analyzer warning identifier. */
+  code: string;
+
+  /** Human-readable warning message. */
+  message: string;
+
+  /** Optional structured details. */
+  details?: Record<string, unknown>;
+}
+
 /** Result of a deterministic governance evaluation run. */
 export interface GovernanceEvaluationResult {
   outcome: Outcome;

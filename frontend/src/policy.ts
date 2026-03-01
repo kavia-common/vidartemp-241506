@@ -1,7 +1,7 @@
 /**
- * Governance policy version stamp.
+ * Governance policy version stamp (analyzer-level).
  *
- * This file is intentionally static and logic-free: it provides a deterministic identifier
+ * This module is intentionally static and logic-free: it provides a deterministic identifier
  * for the active analyzer policy/rule-set contract without introducing I/O or dependencies.
  */
 

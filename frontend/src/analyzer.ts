@@ -1,10 +1,11 @@
 import { runDeterministicGovernanceEngine } from "./engine/core";
-import { POLICY_VERSION } from "./engine/policy";
+import { POLICY_VERSION } from "./policy";
 import type {
   Component,
   GovernanceEvaluationInput,
   GovernanceEvaluationResult,
   GovernanceSystem,
+  NormalizationWarning,
   Product,
   SovereigntyLevel,
 } from "./engine/types";
@@ -130,17 +131,6 @@ function normalizeSystem(raw: unknown): GovernanceSystem {
     isActive: asBool(raw.isActive ?? raw.is_active),
     components,
   };
-}
-
-export interface NormalizationWarning {
-  /** Stable analyzer warning identifier. */
-  code: string;
-
-  /** Human-readable warning message. */
-  message: string;
-
-  /** Optional structured details. */
-  details?: Record<string, unknown>;
 }
 
 /**

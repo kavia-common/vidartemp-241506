@@ -169,7 +169,7 @@ A static policy/rule-set version identifier stamped by the analyzer layer.
 
 This field is analyzer-level metadata and is not part of the deterministic engine core contract. It must not affect scoring, violation ordering, rule evaluation, or any other governance semantics.
 
-`policyVersion` is always present and is a deterministic string constant defined in `frontend/src/engine/policy.ts`.
+`policyVersion` is always present and is a deterministic string constant defined in `frontend/src/policy.ts`.
 
 ## Normalization behavior (high level)
 
