@@ -174,5 +174,11 @@ export function analyzeGovernance(payload: unknown): GovernanceEvaluationResult 
     ];
   }
 
+  // Contract-shape hardening: always return normalizationWarnings as an array.
+  const resultRecord = result as unknown as Record<string, unknown>;
+  if (!Array.isArray(resultRecord.normalizationWarnings)) {
+    resultRecord.normalizationWarnings = [];
+  }
+
   return result;
 }
