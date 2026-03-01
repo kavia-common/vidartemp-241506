@@ -16,8 +16,32 @@ function asString(v: unknown): string | undefined {
   return typeof v === "string" ? v : v == null ? undefined : String(v);
 }
 
+/**
+ * Strict boolean parsing (no Boolean(value) casting):
+ * - true → true
+ * - false → false
+ * - "true"/"false" (case-insensitive, trimmed) → true/false
+ * - 1 → true
+ * - 0 → false
+ * - otherwise → undefined
+ */
 function asBool(v: unknown): boolean | undefined {
-  return typeof v === "boolean" ? v : v == null ? undefined : Boolean(v);
+  if (typeof v === "boolean") return v;
+
+  if (typeof v === "string") {
+    const s = v.trim().toLowerCase();
+    if (s === "true") return true;
+    if (s === "false") return false;
+    return undefined;
+  }
+
+  if (typeof v === "number") {
+    if (v === 1) return true;
+    if (v === 0) return false;
+    return undefined;
+  }
+
+  return undefined;
 }
 
 function asNumber(v: unknown): number | undefined {
@@ -27,7 +51,8 @@ function asNumber(v: unknown): number | undefined {
 }
 
 function asSovereigntyLevel(v: unknown): SovereigntyLevel | undefined {
-  const s = asString(v)?.toUpperCase();
+  // Normalize strings defensively: trim before uppercasing.
+  const s = asString(v)?.trim().toUpperCase();
   switch (s) {
     case "SOVEREIGN":
     case "APPROVED":
@@ -44,8 +69,23 @@ function normalizeProduct(raw: unknown): Product | null {
   if (!isObject(raw)) return null;
 
   const advisoryRuleCodesRaw = raw.advisoryRuleCodes ?? raw.advisory_rule_codes;
-  const advisoryRuleCodes =
-    Array.isArray(advisoryRuleCodesRaw) ? advisoryRuleCodesRaw.map(asString).filter(Boolean) as string[] : undefined;
+
+  // Normalize advisoryRuleCodes:
+  // - array → array of strings
+  // - single string → [string]
+  // - otherwise → undefined
+  let advisoryRuleCodes: string[] | undefined;
+  if (Array.isArray(advisoryRuleCodesRaw)) {
+    advisoryRuleCodes = advisoryRuleCodesRaw.map(asString).filter(Boolean) as string[];
+  } else if (typeof advisoryRuleCodesRaw === "string") {
+    const code = advisoryRuleCodesRaw.trim();
+    advisoryRuleCodes = code ? [code] : undefined;
+  }
+
+  // zeroCloudCapable normalization:
+  // allow booleans, 0/1, and "true"/"false" strings.
+  const zeroCloudCapableRaw = raw.zeroCloudCapable ?? raw.zero_cloud_capable;
+  const zeroCloudCapable = asBool(zeroCloudCapableRaw);
 
   return {
     productId: asString(raw.productId ?? raw.product_id),
@@ -53,11 +93,7 @@ function normalizeProduct(raw: unknown): Product | null {
     vendorName: asString(raw.vendorName ?? raw.vendor_name),
     vendorCountry: asString(raw.vendorCountry ?? raw.vendor_country),
     sovereigntyLevel: asSovereigntyLevel(raw.sovereigntyLevel ?? raw.sovereignty_level),
-    zeroCloudCapable: typeof raw.zeroCloudCapable === "boolean"
-      ? raw.zeroCloudCapable
-      : typeof raw.zero_cloud_capable === "boolean"
-        ? (raw.zero_cloud_capable as boolean)
-        : undefined,
+    zeroCloudCapable,
     advisoryRuleCodes,
   };
 }
@@ -104,7 +140,13 @@ function normalizeSystem(raw: unknown): GovernanceSystem {
  */
 // PUBLIC_INTERFACE
 export function analyzeGovernance(payload: unknown): GovernanceEvaluationResult {
-  const system = normalizeSystem(payload);
+  // Support wrapped payloads:
+  // If payload.system exists, treat that as the system root.
+  const payloadHasSystemWrapper =
+    isObject(payload) && Object.prototype.hasOwnProperty.call(payload, "system");
+  const systemRoot = payloadHasSystemWrapper ? (payload as Record<string, unknown>).system : payload;
+
+  const system = normalizeSystem(systemRoot);
 
   const downstreamRaw = isObject(payload) ? (payload.downstreamSystemIds ?? payload.downstream_system_ids) : undefined;
   const downstreamSystemIds = Array.isArray(downstreamRaw)
@@ -112,5 +154,25 @@ export function analyzeGovernance(payload: unknown): GovernanceEvaluationResult 
     : undefined;
 
   const input: GovernanceEvaluationInput = { system, downstreamSystemIds };
-  return runDeterministicGovernanceEngine(input);
+  const result = runDeterministicGovernanceEngine(input);
+
+  // Defensive safeguard:
+  // If after normalization system.sovereigntyLevel and components are both undefined,
+  // attach a deterministic structured warning note (no console output).
+  if (system.sovereigntyLevel === undefined && system.components === undefined) {
+    (result as unknown as Record<string, unknown>).normalizationWarnings = [
+      {
+        code: "ANALYZER_NORMALIZATION_MISSING_SYSTEM_CONTEXT",
+        message:
+          "Analyzer normalization produced a system with neither sovereigntyLevel nor components; upstream payload may be mis-shaped.",
+        details: {
+          payloadWrappedSystem: payloadHasSystemWrapper,
+          systemId: system.systemId,
+          systemName: system.systemName,
+        },
+      },
+    ];
+  }
+
+  return result;
 }
