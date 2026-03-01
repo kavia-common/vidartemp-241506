@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useMemo, useState, useCallback } from "react";
 import {
   Server,
   ChevronRight,
@@ -377,172 +377,255 @@ function EvaluationsTab({ systemId }) {
     }
   }, [normalizedRuleFilter, ruleFilter]);
 
+  const governanceSummary = useMemo(() => {
+    // Compute summary from the same violations that are currently displayed (i.e., after
+    // the client-side rule filter is applied). This intentionally does NOT alter any
+    // existing fetching, filtering, or metadata-toggle logic.
+    const violations = (items ?? []).flatMap((ev) =>
+      (ev.violations ?? []).filter(
+        (v) => normalizedRuleFilter === "All" || v.rule_code === normalizedRuleFilter
+      )
+    );
+
+    const byFamily = {};
+    for (const v of violations) {
+      const code = v?.rule_code;
+      if (!code) continue;
+
+      // Rule family prefix: text before the first "-" (e.g., "SOVR-001" -> "SOVR").
+      // If the code has no "-", we treat the entire code as its family.
+      const raw = String(code);
+      const family = raw.includes("-") ? raw.split("-")[0] : raw;
+
+      byFamily[family] = (byFamily[family] ?? 0) + 1;
+    }
+
+    const families = Object.entries(byFamily)
+      .map(([family, count]) => ({ family, count }))
+      .sort((a, b) => b.count - a.count || a.family.localeCompare(b.family));
+
+    return { total: violations.length, families };
+  }, [items, normalizedRuleFilter]);
+
   const toggleViolation = (key) => {
     setExpandedViolationKeys((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
   return (
-    <div className="p-4">
-      {/* Filter control (client-side only) */}
-      <div className="flex items-center gap-3 mb-3">
-        <label
-          htmlFor="rule-filter"
-          className="text-[10px] text-slate-500 font-mono uppercase tracking-widest"
-        >
-          Filter by rule
-        </label>
-        <select
-          id="rule-filter"
-          value={normalizedRuleFilter}
-          onChange={(e) => setRuleFilter(e.target.value)}
-          className="bg-[#0d0d14] border border-slate-800 rounded px-2 py-1 text-[11px] text-slate-300 font-mono focus:outline-none focus:ring-1 focus:ring-indigo-500/40"
-        >
-          <option value="All">All</option>
-          {availableRuleCodes.map((code) => (
-            <option key={code} value={code}>
-              {code}
-            </option>
-          ))}
-        </select>
-      </div>
+    <div className="p-4 flex flex-col lg:flex-row gap-4">
+      {/* Left: table + controls */}
+      <div className="flex-1 min-w-0">
+        {/* Filter control (client-side only) */}
+        <div className="flex items-center gap-3 mb-3">
+          <label
+            htmlFor="rule-filter"
+            className="text-[10px] text-slate-500 font-mono uppercase tracking-widest"
+          >
+            Filter by rule
+          </label>
+          <select
+            id="rule-filter"
+            value={normalizedRuleFilter}
+            onChange={(e) => setRuleFilter(e.target.value)}
+            className="bg-[#0d0d14] border border-slate-800 rounded px-2 py-1 text-[11px] text-slate-300 font-mono focus:outline-none focus:ring-1 focus:ring-indigo-500/40"
+          >
+            <option value="All">All</option>
+            {availableRuleCodes.map((code) => (
+              <option key={code} value={code}>
+                {code}
+              </option>
+            ))}
+          </select>
+        </div>
 
-      <div className="bg-[#0d0d14] border border-slate-800 rounded-lg overflow-hidden">
-        <table className="w-full text-xs">
-          <thead>
-            <tr className="border-b border-slate-800 text-slate-500 font-mono text-[10px] uppercase tracking-wide">
-              <th className="text-left px-4 py-2">Triggered</th>
-              <th className="text-left px-4 py-2">Event Type</th>
-              <th className="text-left px-4 py-2">Outcome</th>
-              <th className="text-left px-4 py-2">Violations</th>
-              <th className="text-left px-4 py-2">Triggered By</th>
-            </tr>
-          </thead>
-          <tbody>
-            {items.length === 0 ? (
-              <EmptyRow cols={5} label="No evaluations" />
-            ) : (
-              items.map((ev) => (
-                <tr
-                  key={ev.event_id}
-                  className="border-b border-slate-800/40 last:border-0 hover:bg-slate-800/20 transition-colors"
-                >
-                  <td className="px-4 py-2.5 text-slate-500 font-mono whitespace-nowrap">
-                    {new Date(ev.triggered_at).toLocaleString()}
-                  </td>
-                  <td className="px-4 py-2.5 text-slate-400 font-mono">
-                    {ev.event_type}
-                  </td>
-                  <td className="px-4 py-2.5">
-                    <OutcomeBadge outcome={ev.outcome} />
-                  </td>
-                  <td className="px-4 py-2.5">
-                    {ev.violations?.length > 0 ? (
-                      (() => {
-                        // Keep the original violation index for deterministic expansion keys,
-                        // even after filtering.
-                        const filtered = (ev.violations ?? [])
-                          .map((v, i) => ({ v, i }))
-                          .filter(
-                            ({ v }) =>
-                              normalizedRuleFilter === "All" ||
-                              v.rule_code === normalizedRuleFilter
-                          );
+        <div className="bg-[#0d0d14] border border-slate-800 rounded-lg overflow-hidden">
+          <table className="w-full text-xs">
+            <thead>
+              <tr className="border-b border-slate-800 text-slate-500 font-mono text-[10px] uppercase tracking-wide">
+                <th className="text-left px-4 py-2">Triggered</th>
+                <th className="text-left px-4 py-2">Event Type</th>
+                <th className="text-left px-4 py-2">Outcome</th>
+                <th className="text-left px-4 py-2">Violations</th>
+                <th className="text-left px-4 py-2">Triggered By</th>
+              </tr>
+            </thead>
+            <tbody>
+              {items.length === 0 ? (
+                <EmptyRow cols={5} label="No evaluations" />
+              ) : (
+                items.map((ev) => (
+                  <tr
+                    key={ev.event_id}
+                    className="border-b border-slate-800/40 last:border-0 hover:bg-slate-800/20 transition-colors"
+                  >
+                    <td className="px-4 py-2.5 text-slate-500 font-mono whitespace-nowrap">
+                      {new Date(ev.triggered_at).toLocaleString()}
+                    </td>
+                    <td className="px-4 py-2.5 text-slate-400 font-mono">
+                      {ev.event_type}
+                    </td>
+                    <td className="px-4 py-2.5">
+                      <OutcomeBadge outcome={ev.outcome} />
+                    </td>
+                    <td className="px-4 py-2.5">
+                      {ev.violations?.length > 0 ? (
+                        (() => {
+                          // Keep the original violation index for deterministic expansion keys,
+                          // even after filtering.
+                          const filtered = (ev.violations ?? [])
+                            .map((v, i) => ({ v, i }))
+                            .filter(
+                              ({ v }) =>
+                                normalizedRuleFilter === "All" ||
+                                v.rule_code === normalizedRuleFilter
+                            );
 
-                        if (filtered.length === 0) {
-                          return <span className="text-slate-700">—</span>;
-                        }
+                          if (filtered.length === 0) {
+                            return <span className="text-slate-700">—</span>;
+                          }
 
-                        return (
-                          <div className="flex flex-wrap gap-1">
-                            {filtered.map(({ v, i }) => {
-                              const key = `${ev.event_id}:${i}:${v.rule_code}`;
-                              const md = getRuleMetadata(v.rule_code);
-                              const hasMd =
-                                !!md && (!!md.description || !!md.documentReference);
-                              const expanded = !!expandedViolationKeys[key];
+                          return (
+                            <div className="flex flex-wrap gap-1">
+                              {filtered.map(({ v, i }) => {
+                                const key = `${ev.event_id}:${i}:${v.rule_code}`;
+                                const md = getRuleMetadata(v.rule_code);
+                                const hasMd =
+                                  !!md &&
+                                  (!!md.description || !!md.documentReference);
+                                const expanded = !!expandedViolationKeys[key];
 
-                              // If metadata is missing, we must display ONLY the rule code (no crash, no fallback text).
-                              if (!hasMd) {
+                                // If metadata is missing, we must display ONLY the rule code (no crash, no fallback text).
+                                if (!hasMd) {
+                                  return (
+                                    <span
+                                      key={key}
+                                      className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-slate-700 text-slate-400"
+                                    >
+                                      {v.rule_code}
+                                    </span>
+                                  );
+                                }
+
                                 return (
-                                  <span
-                                    key={key}
-                                    className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-slate-700 text-slate-400"
-                                  >
-                                    {v.rule_code}
-                                  </span>
+                                  <div key={key} className="flex flex-col">
+                                    <button
+                                      type="button"
+                                      onClick={() => toggleViolation(key)}
+                                      aria-expanded={expanded}
+                                      className="text-left text-[10px] font-mono px-1.5 py-0.5 rounded bg-slate-700 text-slate-300 hover:text-slate-200 transition-colors"
+                                      title="Click to toggle rule details"
+                                    >
+                                      {v.rule_code}
+                                    </button>
+
+                                    {expanded && (
+                                      <div className="mt-1 px-1.5 py-1 rounded border border-slate-800 bg-[#0b0b12]">
+                                        {md.description ? (
+                                          <div className="text-[11px] leading-snug text-slate-500">
+                                            {md.description}
+                                          </div>
+                                        ) : null}
+
+                                        {md.documentReference ? (
+                                          <div className="mt-1 text-[10px] font-mono text-slate-600">
+                                            {md.documentReference}
+                                          </div>
+                                        ) : null}
+                                      </div>
+                                    )}
+                                  </div>
                                 );
-                              }
+                              })}
+                            </div>
+                          );
+                        })()
+                      ) : (
+                        <span className="text-slate-700">—</span>
+                      )}
+                    </td>
+                    <td className="px-4 py-2.5 text-slate-500 font-mono">
+                      {ev.triggered_by ?? "—"}
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
 
-                              return (
-                                <div key={key} className="flex flex-col">
-                                  <button
-                                    type="button"
-                                    onClick={() => toggleViolation(key)}
-                                    aria-expanded={expanded}
-                                    className="text-left text-[10px] font-mono px-1.5 py-0.5 rounded bg-slate-700 text-slate-300 hover:text-slate-200 transition-colors"
-                                    title="Click to toggle rule details"
-                                  >
-                                    {v.rule_code}
-                                  </button>
-
-                                  {expanded && (
-                                    <div className="mt-1 px-1.5 py-1 rounded border border-slate-800 bg-[#0b0b12]">
-                                      {md.description ? (
-                                        <div className="text-[11px] leading-snug text-slate-500">
-                                          {md.description}
-                                        </div>
-                                      ) : null}
-
-                                      {md.documentReference ? (
-                                        <div className="mt-1 text-[10px] font-mono text-slate-600">
-                                          {md.documentReference}
-                                        </div>
-                                      ) : null}
-                                    </div>
-                                  )}
-                                </div>
-                              );
-                            })}
-                          </div>
-                        );
-                      })()
-                    ) : (
-                      <span className="text-slate-700">—</span>
-                    )}
-                  </td>
-                  <td className="px-4 py-2.5 text-slate-500 font-mono">
-                    {ev.triggered_by ?? "—"}
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+        {/* Pagination */}
+        <div className="flex items-center justify-between mt-3">
+          <span className="text-[11px] text-slate-600 font-mono">
+            {d.total} evaluation{d.total !== 1 ? "s" : ""} total
+          </span>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={page === 1 || loading}
+              className="p-1.5 rounded border border-slate-700 text-slate-400 hover:text-slate-200 hover:border-slate-600 disabled:opacity-30 transition-colors"
+            >
+              <ChevronLeft size={13} />
+            </button>
+            <span className="text-[11px] text-slate-500 font-mono">
+              page {page}
+            </span>
+            <button
+              onClick={() => setPage((p) => p + 1)}
+              disabled={!d.has_next || loading}
+              className="p-1.5 rounded border border-slate-700 text-slate-400 hover:text-slate-200 hover:border-slate-600 disabled:opacity-30 transition-colors"
+            >
+              <ChevronRight size={13} />
+            </button>
+          </div>
+        </div>
       </div>
 
-      {/* Pagination */}
-      <div className="flex items-center justify-between mt-3">
-        <span className="text-[11px] text-slate-600 font-mono">
-          {d.total} evaluation{d.total !== 1 ? "s" : ""} total
-        </span>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => setPage((p) => Math.max(1, p - 1))}
-            disabled={page === 1 || loading}
-            className="p-1.5 rounded border border-slate-700 text-slate-400 hover:text-slate-200 hover:border-slate-600 disabled:opacity-30 transition-colors"
-          >
-            <ChevronLeft size={13} />
-          </button>
-          <span className="text-[11px] text-slate-500 font-mono">
-            page {page}
-          </span>
-          <button
-            onClick={() => setPage((p) => p + 1)}
-            disabled={!d.has_next || loading}
-            className="p-1.5 rounded border border-slate-700 text-slate-400 hover:text-slate-200 hover:border-slate-600 disabled:opacity-30 transition-colors"
-          >
-            <ChevronRight size={13} />
-          </button>
+      {/* Right: Governance Summary panel */}
+      <div className="w-full lg:w-72 flex-shrink-0">
+        <div className="lg:sticky lg:top-4 bg-[#0d0d14] border border-slate-800 rounded-lg p-4">
+          <div className="flex items-center justify-between gap-3">
+            <p className="text-[10px] text-slate-500 font-mono uppercase tracking-widest">
+              Governance Summary
+            </p>
+            {normalizedRuleFilter !== "All" ? (
+              <span className="text-[10px] font-mono px-1.5 py-0.5 rounded border border-indigo-500/30 bg-indigo-500/10 text-indigo-300">
+                {normalizedRuleFilter}
+              </span>
+            ) : null}
+          </div>
+
+          <div className="mt-3 flex items-baseline justify-between border-b border-slate-800/60 pb-3">
+            <span className="text-xs text-slate-400">Total violations</span>
+            <span className="text-lg font-mono font-semibold tabular-nums text-slate-200">
+              {governanceSummary.total}
+            </span>
+          </div>
+
+          <div className="mt-3">
+            <p className="text-[10px] text-slate-600 font-mono uppercase tracking-widest mb-2">
+              By family
+            </p>
+
+            {governanceSummary.families.length === 0 ? (
+              <p className="text-xs text-slate-600">No violations in current view.</p>
+            ) : (
+              <div className="space-y-2">
+                {governanceSummary.families.map(({ family, count }) => (
+                  <div
+                    key={family}
+                    className="flex items-center justify-between py-1 border-b border-slate-800/40 last:border-0"
+                  >
+                    <span className="text-xs text-slate-300 font-mono truncate max-w-[170px]">
+                      {family}
+                    </span>
+                    <span className="text-xs text-slate-400 font-mono tabular-nums">
+                      {count}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>
