@@ -36,7 +36,7 @@ The underlying engine function `runDeterministicGovernanceEngine` is also explic
 4. `evaluatedRuleCodes`
 5. `normalizationWarnings`
 
-The first four fields come from the governance engine’s `GovernanceEvaluationResult` type. The `normalizationWarnings` field is part of the analyzer contract (not the governance engine contract): it is contract-hardened by the analyzer and is always present on the returned object.
+The first four fields come from the governance engine's `GovernanceEvaluationResult` type. The `normalizationWarnings` field is part of the analyzer contract (not the governance engine contract): it is contract-hardened by the analyzer and is always present on the returned object.
 
 ### Types (TypeScript-style)
 
@@ -84,7 +84,7 @@ interface NormalizationWarning {
 /**
  * Public contract of analyzeGovernance(payload).
  *
- * Note: the engine’s type definition includes outcome/score/violations/evaluatedRuleCodes.
+ * Note: the engine's type definition includes outcome/score/violations/evaluatedRuleCodes.
  * The analyzer additionally guarantees normalizationWarnings is always present and an array.
  */
 interface GovernanceEvaluationResult {
@@ -132,7 +132,7 @@ This means callers may rely on the array ordering being stable across runs for t
 
 ### `normalizationWarnings: NormalizationWarning[]`
 
-This field is guaranteed by the analyzer to always exist and to always be an array. It is an analyzer-level output and is not part of the governance engine’s contract (it is not part of the engine’s `GovernanceEvaluationResult` interface in `frontend/src/engine/types.ts`).
+This field is guaranteed by the analyzer to always exist and to always be an array. It is an analyzer-level output and is not part of the governance engine's contract (it is not part of the engine's `GovernanceEvaluationResult` interface in `frontend/src/engine/types.ts`).
 
 #### Guarantee: always present, always an array
 
@@ -167,4 +167,4 @@ The analyzer supports a wrapper shape where `payload.system` is treated as the s
 
 ## Compatibility notes
 
-The governance engine’s `GovernanceEvaluationResult` type in `frontend/src/engine/types.ts` does not declare `normalizationWarnings`, and the engine contract should not be interpreted as including that field. The analyzer nonetheless returns a value that includes `normalizationWarnings` and guarantees it is always present and always an array. Consumers should treat `normalizationWarnings` as part of the public contract of `analyzeGovernance` (the analyzer contract), not as part of the governance engine contract.
+The governance engine's `GovernanceEvaluationResult` type in `frontend/src/engine/types.ts` does not declare `normalizationWarnings`, and the engine contract should not be interpreted as including that field. The analyzer nonetheless returns a value that includes `normalizationWarnings` and guarantees it is always present and always an array. Consumers should treat `normalizationWarnings` as part of the public contract of `analyzeGovernance` (the analyzer contract), not as part of the governance engine contract.
