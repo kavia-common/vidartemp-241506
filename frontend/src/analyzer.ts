@@ -1,4 +1,5 @@
 import { runDeterministicGovernanceEngine } from "./engine/core";
+import { POLICY_VERSION } from "./engine/policy";
 import type {
   Component,
   GovernanceEvaluationInput,
@@ -131,6 +132,31 @@ function normalizeSystem(raw: unknown): GovernanceSystem {
   };
 }
 
+export interface NormalizationWarning {
+  /** Stable analyzer warning identifier. */
+  code: string;
+
+  /** Human-readable warning message. */
+  message: string;
+
+  /** Optional structured details. */
+  details?: Record<string, unknown>;
+}
+
+/**
+ * Public contract of analyzeGovernance(payload).
+ *
+ * Note:
+ * - The deterministic engine returns GovernanceEvaluationResult.
+ * - The analyzer adds analyzer-level metadata/hardening fields:
+ *   - normalizationWarnings (always present as an array)
+ *   - policyVersion (static policy/rule-set version identifier)
+ */
+export type AnalyzeGovernanceResult = GovernanceEvaluationResult & {
+  normalizationWarnings: NormalizationWarning[];
+  policyVersion: string;
+};
+
 /**
  * Analyzer entrypoint: normalize an arbitrary payload into the engine input model
  * and run the deterministic governance engine.
@@ -139,7 +165,7 @@ function normalizeSystem(raw: unknown): GovernanceSystem {
  * in both UI and non-UI logic layers.
  */
 // PUBLIC_INTERFACE
-export function analyzeGovernance(payload: unknown): GovernanceEvaluationResult {
+export function analyzeGovernance(payload: unknown): AnalyzeGovernanceResult {
   // Support wrapped payloads:
   // If payload.system exists, treat that as the system root.
   const payloadHasSystemWrapper =
@@ -148,7 +174,9 @@ export function analyzeGovernance(payload: unknown): GovernanceEvaluationResult 
 
   const system = normalizeSystem(systemRoot);
 
-  const downstreamRaw = isObject(payload) ? (payload.downstreamSystemIds ?? payload.downstream_system_ids) : undefined;
+  const downstreamRaw = isObject(payload)
+    ? (payload.downstreamSystemIds ?? payload.downstream_system_ids)
+    : undefined;
   const downstreamSystemIds = Array.isArray(downstreamRaw)
     ? (downstreamRaw.map(asString).filter(Boolean) as string[])
     : undefined;
@@ -180,5 +208,8 @@ export function analyzeGovernance(payload: unknown): GovernanceEvaluationResult 
     resultRecord.normalizationWarnings = [];
   }
 
-  return result;
+  // Analyzer-level policy version stamp (must not affect engine semantics).
+  resultRecord.policyVersion = POLICY_VERSION;
+
+  return result as AnalyzeGovernanceResult;
 }

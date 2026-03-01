@@ -18,7 +18,7 @@ The function accepts an arbitrary JavaScript value (`unknown`). It performs dete
 
 `analyzeGovernance` is deterministic and free of external side effects.
 
-Given the same `payload` value, `analyzeGovernance` will return the same result, including the ordering of `violations`, the ordering of `evaluatedRuleCodes`, and the contents of `normalizationWarnings`.
+Given the same `payload` value, `analyzeGovernance` will return the same result, including the ordering of `violations`, the ordering of `evaluatedRuleCodes`, and the contents of `normalizationWarnings` and `policyVersion`.
 
 `analyzeGovernance` performs normalization only. It does not perform network calls, does not read from or write to storage, does not log to the console, and does not produce any observable side effects outside of returning its result value.
 
@@ -35,8 +35,9 @@ The underlying engine function `runDeterministicGovernanceEngine` is also explic
 3. `violations`
 4. `evaluatedRuleCodes`
 5. `normalizationWarnings`
+6. `policyVersion`
 
-The first four fields come from the governance engine's `GovernanceEvaluationResult` type. The `normalizationWarnings` field is part of the analyzer contract (not the governance engine contract): it is contract-hardened by the analyzer and is always present on the returned object.
+The first four fields come from the governance engine's `GovernanceEvaluationResult` type. The `normalizationWarnings` and `policyVersion` fields are part of the analyzer contract (not the governance engine contract): they are analyzer-level metadata/hardening and are always present on the returned object.
 
 ### Types (TypeScript-style)
 
@@ -85,7 +86,9 @@ interface NormalizationWarning {
  * Public contract of analyzeGovernance(payload).
  *
  * Note: the engine's type definition includes outcome/score/violations/evaluatedRuleCodes.
- * The analyzer additionally guarantees normalizationWarnings is always present and an array.
+ * The analyzer additionally guarantees:
+ * - normalizationWarnings is always present and an array.
+ * - policyVersion is always present and a string (static policy/rule-set identifier).
  */
 interface GovernanceEvaluationResult {
   outcome: Outcome;
@@ -93,8 +96,11 @@ interface GovernanceEvaluationResult {
   violations: GovernanceViolation[];
   evaluatedRuleCodes: string[];
 
-  // Analyzer contract hardening:
+  // Analyzer contract hardening / metadata:
   normalizationWarnings: NormalizationWarning[];
+
+  // Analyzer-level metadata:
+  policyVersion: string;
 }
 ```
 
@@ -157,6 +163,14 @@ In that specific case, the analyzer attaches a deterministic warning object with
 
 If the condition does not occur, the array is empty unless other analyzer logic has already populated it (the analyzer still guarantees an array will be present).
 
+### `policyVersion: string`
+
+A static policy/rule-set version identifier stamped by the analyzer layer.
+
+This field is analyzer-level metadata and is not part of the deterministic engine core contract. It must not affect scoring, violation ordering, rule evaluation, or any other governance semantics.
+
+`policyVersion` is always present and is a deterministic string constant defined in `frontend/src/engine/policy.ts`.
+
 ## Normalization behavior (high level)
 
 `analyzeGovernance` normalizes input only and is designed to avoid throwing due to missing or mis-shaped fields.
@@ -167,4 +181,6 @@ The analyzer supports a wrapper shape where `payload.system` is treated as the s
 
 ## Compatibility notes
 
-The governance engine's `GovernanceEvaluationResult` type in `frontend/src/engine/types.ts` does not declare `normalizationWarnings`, and the engine contract should not be interpreted as including that field. The analyzer nonetheless returns a value that includes `normalizationWarnings` and guarantees it is always present and always an array. Consumers should treat `normalizationWarnings` as part of the public contract of `analyzeGovernance` (the analyzer contract), not as part of the governance engine contract.
+The governance engine's `GovernanceEvaluationResult` type in `frontend/src/engine/types.ts` does not declare `normalizationWarnings` or `policyVersion`, and the engine contract should not be interpreted as including those fields.
+
+The analyzer nonetheless returns a value that includes `normalizationWarnings` (always present as an array) and `policyVersion` (always present as a string). Consumers should treat these as part of the public contract of `analyzeGovernance` (the analyzer contract), not as part of the governance engine contract.
