@@ -36,7 +36,7 @@ The underlying engine function `runDeterministicGovernanceEngine` is also explic
 4. `evaluatedRuleCodes`
 5. `normalizationWarnings`
 
-The first four fields come from the governance engine’s `GovernanceEvaluationResult` type. The `normalizationWarnings` field is contract-hardened by the analyzer and is always present on the returned object.
+The first four fields come from the governance engine’s `GovernanceEvaluationResult` type. The `normalizationWarnings` field is part of the analyzer contract (not the governance engine contract): it is contract-hardened by the analyzer and is always present on the returned object.
 
 ### Types (TypeScript-style)
 
@@ -116,12 +116,7 @@ A list of all violations produced by deterministic rule evaluation.
 
 #### Ordering guarantee for `violations`
 
-`violations` are deterministically sorted. The comparator is:
-
-1. `severity` descending (`CRITICAL` first, then `WARNING`, then `INFORMATIONAL`)
-2. `ruleCode` ascending (lexicographic)
-3. `subject` ascending (lexicographic; missing/undefined is treated as an empty string for comparison)
-4. `message` ascending (lexicographic; missing/undefined is treated as an empty string for comparison)
+Deterministic, stable order guaranteed by engine.
 
 This means callers may rely on the array ordering being stable across runs for the same normalized input.
 
@@ -131,16 +126,13 @@ A deterministic trace of which rule codes were evaluated for the run.
 
 #### Ordering guarantee for `evaluatedRuleCodes`
 
-`evaluatedRuleCodes` is returned in deterministic order. The evaluation pipeline ensures that:
-
-1. Rules are evaluated in a stable order (sorted by rule code), and
-2. The returned `evaluatedRuleCodes` array is also sorted lexicographically before returning.
+Deterministic, stable order guaranteed by engine.
 
 This means callers may rely on the array ordering being stable across runs for the same normalized input and the same rule set.
 
 ### `normalizationWarnings: NormalizationWarning[]`
 
-This field is guaranteed by the analyzer to always exist and to always be an array, even though it is not part of the engine’s `GovernanceEvaluationResult` interface in `frontend/src/engine/types.ts`.
+This field is guaranteed by the analyzer to always exist and to always be an array. It is an analyzer-level output and is not part of the governance engine’s contract (it is not part of the engine’s `GovernanceEvaluationResult` interface in `frontend/src/engine/types.ts`).
 
 #### Guarantee: always present, always an array
 
@@ -175,4 +167,4 @@ The analyzer supports a wrapper shape where `payload.system` is treated as the s
 
 ## Compatibility notes
 
-The governance engine’s `GovernanceEvaluationResult` type in `frontend/src/engine/types.ts` does not declare `normalizationWarnings`. The analyzer nonetheless returns a value that includes `normalizationWarnings` and guarantees it is always present and always an array. Consumers should treat `normalizationWarnings` as part of the public contract of `analyzeGovernance`.
+The governance engine’s `GovernanceEvaluationResult` type in `frontend/src/engine/types.ts` does not declare `normalizationWarnings`, and the engine contract should not be interpreted as including that field. The analyzer nonetheless returns a value that includes `normalizationWarnings` and guarantees it is always present and always an array. Consumers should treat `normalizationWarnings` as part of the public contract of `analyzeGovernance` (the analyzer contract), not as part of the governance engine contract.
