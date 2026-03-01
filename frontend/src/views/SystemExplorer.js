@@ -49,9 +49,9 @@ const EmptyRow = ({ cols, label }) => (
   </tr>
 );
 
-/* ────────────────────────────────────────────────────────────────
+/* ─────────────────────────────────────────────────────────────────────────────
    Tab: Risk Summary
-──────────────────────────────────────────────────────────────── */
+──────────────────────────────────────────────────────────────────────────── */
 function RiskTab({ systemId }) {
   const [d, setD] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -148,9 +148,9 @@ function RiskTab({ systemId }) {
   );
 }
 
-/* ────────────────────────────────────────────────────────────────
+/* ─────────────────────────────────────────────────────────────────────────────
    Tab: Dependency Map
-──────────────────────────────────────────────────────────────── */
+──────────────────────────────────────────────────────────────────────────── */
 function DependencyTab({ systemId }) {
   const [d, setD] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -306,9 +306,9 @@ function DependencyTab({ systemId }) {
   );
 }
 
-/* ────────────────────────────────────────────────────────────────
+/* ─────────────────────────────────────────────────────────────────────────────
    Tab: Recent Evaluations
-──────────────────────────────────────────────────────────────── */
+──────────────────────────────────────────────────────────────────────────── */
 function EvaluationsTab({ systemId }) {
   const PAGE_SIZE = 10;
   const [page, setPage] = useState(1);
@@ -318,6 +318,9 @@ function EvaluationsTab({ systemId }) {
 
   // Inline per-violation toggle state (deterministic; no fetching)
   const [expandedViolationKeys, setExpandedViolationKeys] = useState({});
+
+  // Client-side rule filter state (no fetching).
+  const [ruleFilter, setRuleFilter] = useState("All");
 
   useEffect(() => {
     setD(null);
@@ -342,11 +345,37 @@ function EvaluationsTab({ systemId }) {
     setExpandedViolationKeys({});
   }, [systemId]);
 
+  // reset rule filter when system changes
+  useEffect(() => {
+    setRuleFilter("All");
+  }, [systemId]);
+
   if (loading) return <div className="p-4">{<Spinner />}</div>;
   if (error) return <div className="p-4">{<Err msg={error} />}</div>;
   if (!d) return null;
 
   const items = d.items ?? [];
+
+  // Dynamic rule options are derived from the violations currently present in the loaded items.
+  const availableRuleCodes = Array.from(
+    new Set(
+      items
+        .flatMap((ev) => (ev.violations ?? []).map((v) => v.rule_code))
+        .filter(Boolean)
+    )
+  ).sort((a, b) => String(a).localeCompare(String(b)));
+
+  // If user selected a rule that isn't present on this page anymore, normalize back to "All".
+  const normalizedRuleFilter =
+    ruleFilter === "All" || availableRuleCodes.includes(ruleFilter)
+      ? ruleFilter
+      : "All";
+
+  useEffect(() => {
+    if (ruleFilter !== normalizedRuleFilter) {
+      setRuleFilter(normalizedRuleFilter);
+    }
+  }, [normalizedRuleFilter, ruleFilter]);
 
   const toggleViolation = (key) => {
     setExpandedViolationKeys((prev) => ({ ...prev, [key]: !prev[key] }));
@@ -354,6 +383,29 @@ function EvaluationsTab({ systemId }) {
 
   return (
     <div className="p-4">
+      {/* Filter control (client-side only) */}
+      <div className="flex items-center gap-3 mb-3">
+        <label
+          htmlFor="rule-filter"
+          className="text-[10px] text-slate-500 font-mono uppercase tracking-widest"
+        >
+          Filter by rule
+        </label>
+        <select
+          id="rule-filter"
+          value={normalizedRuleFilter}
+          onChange={(e) => setRuleFilter(e.target.value)}
+          className="bg-[#0d0d14] border border-slate-800 rounded px-2 py-1 text-[11px] text-slate-300 font-mono focus:outline-none focus:ring-1 focus:ring-indigo-500/40"
+        >
+          <option value="All">All</option>
+          {availableRuleCodes.map((code) => (
+            <option key={code} value={code}>
+              {code}
+            </option>
+          ))}
+        </select>
+      </div>
+
       <div className="bg-[#0d0d14] border border-slate-800 rounded-lg overflow-hidden">
         <table className="w-full text-xs">
           <thead>
@@ -385,57 +437,75 @@ function EvaluationsTab({ systemId }) {
                   </td>
                   <td className="px-4 py-2.5">
                     {ev.violations?.length > 0 ? (
-                      <div className="flex flex-wrap gap-1">
-                        {ev.violations.map((v, i) => {
-                          const key = `${ev.event_id}:${i}:${v.rule_code}`;
-                          const md = getRuleMetadata(v.rule_code);
-                          const hasMd =
-                            !!md && (!!md.description || !!md.documentReference);
-                          const expanded = !!expandedViolationKeys[key];
-
-                          // If metadata is missing, we must display ONLY the rule code (no crash, no fallback text).
-                          if (!hasMd) {
-                            return (
-                              <span
-                                key={key}
-                                className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-slate-700 text-slate-400"
-                              >
-                                {v.rule_code}
-                              </span>
-                            );
-                          }
-
-                          return (
-                            <div key={key} className="flex flex-col">
-                              <button
-                                type="button"
-                                onClick={() => toggleViolation(key)}
-                                aria-expanded={expanded}
-                                className="text-left text-[10px] font-mono px-1.5 py-0.5 rounded bg-slate-700 text-slate-300 hover:text-slate-200 transition-colors"
-                                title="Click to toggle rule details"
-                              >
-                                {v.rule_code}
-                              </button>
-
-                              {expanded && (
-                                <div className="mt-1 px-1.5 py-1 rounded border border-slate-800 bg-[#0b0b12]">
-                                  {md.description ? (
-                                    <div className="text-[11px] leading-snug text-slate-500">
-                                      {md.description}
-                                    </div>
-                                  ) : null}
-
-                                  {md.documentReference ? (
-                                    <div className="mt-1 text-[10px] font-mono text-slate-600">
-                                      {md.documentReference}
-                                    </div>
-                                  ) : null}
-                                </div>
-                              )}
-                            </div>
+                      (() => {
+                        // Keep the original violation index for deterministic expansion keys,
+                        // even after filtering.
+                        const filtered = (ev.violations ?? [])
+                          .map((v, i) => ({ v, i }))
+                          .filter(
+                            ({ v }) =>
+                              normalizedRuleFilter === "All" ||
+                              v.rule_code === normalizedRuleFilter
                           );
-                        })}
-                      </div>
+
+                        if (filtered.length === 0) {
+                          return <span className="text-slate-700">—</span>;
+                        }
+
+                        return (
+                          <div className="flex flex-wrap gap-1">
+                            {filtered.map(({ v, i }) => {
+                              const key = `${ev.event_id}:${i}:${v.rule_code}`;
+                              const md = getRuleMetadata(v.rule_code);
+                              const hasMd =
+                                !!md && (!!md.description || !!md.documentReference);
+                              const expanded = !!expandedViolationKeys[key];
+
+                              // If metadata is missing, we must display ONLY the rule code (no crash, no fallback text).
+                              if (!hasMd) {
+                                return (
+                                  <span
+                                    key={key}
+                                    className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-slate-700 text-slate-400"
+                                  >
+                                    {v.rule_code}
+                                  </span>
+                                );
+                              }
+
+                              return (
+                                <div key={key} className="flex flex-col">
+                                  <button
+                                    type="button"
+                                    onClick={() => toggleViolation(key)}
+                                    aria-expanded={expanded}
+                                    className="text-left text-[10px] font-mono px-1.5 py-0.5 rounded bg-slate-700 text-slate-300 hover:text-slate-200 transition-colors"
+                                    title="Click to toggle rule details"
+                                  >
+                                    {v.rule_code}
+                                  </button>
+
+                                  {expanded && (
+                                    <div className="mt-1 px-1.5 py-1 rounded border border-slate-800 bg-[#0b0b12]">
+                                      {md.description ? (
+                                        <div className="text-[11px] leading-snug text-slate-500">
+                                          {md.description}
+                                        </div>
+                                      ) : null}
+
+                                      {md.documentReference ? (
+                                        <div className="mt-1 text-[10px] font-mono text-slate-600">
+                                          {md.documentReference}
+                                        </div>
+                                      ) : null}
+                                    </div>
+                                  )}
+                                </div>
+                              );
+                            })}
+                          </div>
+                        );
+                      })()
                     ) : (
                       <span className="text-slate-700">—</span>
                     )}
@@ -479,9 +549,9 @@ function EvaluationsTab({ systemId }) {
   );
 }
 
-/* ────────────────────────────────────────────────────────────────
+/* ─────────────────────────────────────────────────────────────────────────────
    System Detail Panel
-──────────────────────────────────────────────────────────────── */
+──────────────────────────────────────────────────────────────────────────── */
 const TABS = [
   { id: "risk", label: "Risk Summary" },
   { id: "map", label: "Dependency Map" },
@@ -554,9 +624,9 @@ function SystemDetail({ system, onClose }) {
   );
 }
 
-/* ────────────────────────────────────────────────────────────────
+/* ─────────────────────────────────────────────────────────────────────────────
    System Explorer (root view)
-──────────────────────────────────────────────────────────────── */
+──────────────────────────────────────────────────────────────────────────── */
 export default function SystemExplorer() {
   const [systems, setSystems] = useState([]);
   const [loading, setLoading] = useState(true);
