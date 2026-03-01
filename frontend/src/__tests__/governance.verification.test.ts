@@ -30,6 +30,21 @@ describe("analyzeGovernance verification hardening", () => {
     const result1 = analyzeGovernance(payload);
     const result2 = analyzeGovernance(payload);
 
+    // policyVersion assertions (hardening requirement)
+    expect(result1).toHaveProperty("policyVersion");
+    expect(result2).toHaveProperty("policyVersion");
+
+    const policyVersion1 = (result1 as unknown as { policyVersion: unknown })
+      .policyVersion;
+    const policyVersion2 = (result2 as unknown as { policyVersion: unknown })
+      .policyVersion;
+
+    expect(typeof policyVersion1).toBe("string");
+    expect((policyVersion1 as string).trim().length).toBeGreaterThan(0);
+
+    // Determinism across identical runs
+    expect(policyVersion1).toBe(policyVersion2);
+
     // Deep determinism (entire contract object)
     expect(result1).toEqual(result2);
 
@@ -47,7 +62,8 @@ describe("analyzeGovernance verification hardening", () => {
     expect(result).toHaveProperty("normalizationWarnings");
     expect(
       Array.isArray(
-        (result as unknown as { normalizationWarnings: unknown }).normalizationWarnings,
+        (result as unknown as { normalizationWarnings: unknown })
+          .normalizationWarnings,
       ),
     ).toBe(true);
   });
