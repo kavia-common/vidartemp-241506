@@ -3,6 +3,11 @@ import React from "react";
 import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
+import api from "../api/client";
+import * as ruleRegistry from "../engine/ruleRegistry";
+
+import SystemExplorer from "./SystemExplorer";
+
 // Mock the axios client used by SystemExplorer so no real network is performed.
 jest.mock("../api/client", () => {
   return {
@@ -13,10 +18,6 @@ jest.mock("../api/client", () => {
     },
   };
 });
-
-import api from "../api/client";
-import SystemExplorer from "./SystemExplorer";
-import * as ruleRegistry from "../engine/ruleRegistry";
 
 /**
  * Extract all ruleCode strings rendered inside a given SystemListItem wrapper.
@@ -77,9 +78,7 @@ describe("SystemExplorer Rule Trace edge cases (spyOn registry)", () => {
     ];
 
     // Mock ONLY listRuleMetadata() as requested (no module reset/isolation; no dynamic imports).
-    jest
-      .spyOn(ruleRegistry, "listRuleMetadata")
-      .mockReturnValue(Object.freeze(entries.slice()));
+    jest.spyOn(ruleRegistry, "listRuleMetadata").mockReturnValue(Object.freeze(entries.slice()));
 
     const systems = [
       {
@@ -159,9 +158,7 @@ describe("SystemExplorer Rule Trace edge cases (spyOn registry)", () => {
       },
     ];
 
-    jest
-      .spyOn(ruleRegistry, "listRuleMetadata")
-      .mockReturnValue(Object.freeze(entries.slice()));
+    jest.spyOn(ruleRegistry, "listRuleMetadata").mockReturnValue(Object.freeze(entries.slice()));
 
     const systems = [
       {

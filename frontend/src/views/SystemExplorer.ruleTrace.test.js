@@ -3,6 +3,10 @@ import React from "react";
 import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
+import api from "../api/client";
+
+import SystemExplorer from "./SystemExplorer";
+
 // Mock the axios client used by SystemExplorer so no real network is performed.
 jest.mock("../api/client", () => {
   return {
@@ -13,9 +17,6 @@ jest.mock("../api/client", () => {
     },
   };
 });
-
-import api from "../api/client";
-import SystemExplorer from "./SystemExplorer";
 
 /**
  * Extract all ruleCode strings rendered inside a given SystemListItem wrapper.

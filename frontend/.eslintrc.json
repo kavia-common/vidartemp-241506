@@ -1,5 +1,10 @@
 {
-  "extends": [
-    "react-app"
+  "extends": ["react-app", "react-app/jest"],
+  "overrides": [
+    {
+      "files": ["**/*.test.{js,jsx}", "**/*.spec.{js,jsx}", "**/__tests__/**/*.{js,jsx}"],
+      "plugins": ["testing-library"],
+      "extends": ["plugin:testing-library/react"]
+    }
   ]
 }
