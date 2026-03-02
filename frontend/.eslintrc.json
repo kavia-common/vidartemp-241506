@@ -5,6 +5,12 @@
       "files": ["**/*.test.{js,jsx}", "**/*.spec.{js,jsx}", "**/__tests__/**/*.{js,jsx}"],
       "plugins": ["testing-library"],
       "extends": ["plugin:testing-library/react"]
+    },
+    {
+      "files": ["**/*.test.js"],
+      "rules": {
+        "testing-library/render-result-naming-convention": "off"
+      }
     }
   ]
 }
