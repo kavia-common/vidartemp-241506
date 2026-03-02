@@ -1,10 +1,11 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useMemo, useState, useCallback } from "react";
 import {
   Server, ChevronRight, RefreshCw, AlertTriangle,
   ArrowUpRight, ArrowDownRight, Package, Layers, ChevronLeft
 } from "lucide-react";
 import api from "../api/client";
 import SovereigntyBadge from "../components/SovereigntyBadge";
+import { getRiskProfileForSystem } from "../lib/getRiskProfileForSystem";
 
 /* ── small helpers ── */
 const OutcomeBadge = ({ outcome }) => {
@@ -385,10 +386,94 @@ function SystemDetail({ system, onClose }) {
 /* ────────────────────────────────────────────────────────────
    System Explorer (root view)
 ──────────────────────────────────────────────────────────── */
+function SeverityCountBadge({ label, value, tone }) {
+  const toneMap = {
+    slate: "bg-slate-700/30 text-slate-300 border-slate-700",
+    red: "bg-red-500/15 text-red-300 border-red-500/30",
+    amber: "bg-amber-500/15 text-amber-300 border-amber-500/30",
+    blue: "bg-blue-500/15 text-blue-300 border-blue-500/30",
+  };
+
+  return (
+    <span
+      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded border text-[10px] font-mono tabular-nums ${
+        toneMap[tone] ?? toneMap.slate
+      }`}
+    >
+      <span className="uppercase tracking-wide">{label}</span>
+      <span className="font-semibold">{value}</span>
+    </span>
+  );
+}
+
+function SystemListItem({ system, isSelected, onSelect }) {
+  const riskProfile = useMemo(() => getRiskProfileForSystem(system), [system]);
+
+  return (
+    <button
+      key={system.system_id}
+      onClick={() => onSelect(system)}
+      className={`w-full text-left px-4 py-3 border-b border-slate-800/50 transition-colors group ${
+        isSelected
+          ? "bg-indigo-600/10 border-l-2 border-l-indigo-500"
+          : "hover:bg-slate-800/40 border-l-2 border-l-transparent"
+      }`}
+    >
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0 flex-1">
+          <p
+            className={`text-xs font-mono truncate ${
+              isSelected ? "text-indigo-200" : "text-slate-300"
+            }`}
+          >
+            {system.system_name}
+          </p>
+
+          <div className="flex items-center gap-2 mt-1 flex-wrap">
+            <span className="text-[10px] text-slate-600 font-mono">L{system.layer_id}</span>
+            <SovereigntyBadge level={system.sovereignty_level} />
+            {!system.is_active && <span className="text-[10px] text-slate-600">inactive</span>}
+          </div>
+
+          {/* Rule Trace (summary) */}
+          <div className="mt-2 flex items-center justify-between">
+            <span className="text-[10px] text-slate-600 font-mono uppercase tracking-wide">
+              Rule Trace
+            </span>
+            <span className="text-[10px] text-slate-600 font-mono tabular-nums">
+              {riskProfile.totalRules} rule{riskProfile.totalRules !== 1 ? "s" : ""}
+            </span>
+          </div>
+
+          {/* Risk Profile (metadata-derived only) */}
+          <div className="mt-2">
+            <span className="text-[10px] text-slate-600 font-mono uppercase tracking-wide">
+              Risk Profile
+            </span>
+            <div className="mt-1.5 flex flex-wrap gap-1.5">
+              <SeverityCountBadge label="Total" value={riskProfile.totalRules} tone="slate" />
+              <SeverityCountBadge label="Critical" value={riskProfile.criticalCount} tone="red" />
+              <SeverityCountBadge label="Warning" value={riskProfile.warningCount} tone="amber" />
+              <SeverityCountBadge label="Info" value={riskProfile.infoCount} tone="blue" />
+            </div>
+          </div>
+        </div>
+
+        <ChevronRight
+          size={13}
+          className={`flex-shrink-0 mt-0.5 transition-colors ${
+            isSelected ? "text-indigo-400" : "text-slate-700 group-hover:text-slate-500"
+          }`}
+        />
+      </div>
+    </button>
+  );
+}
+
 export default function SystemExplorer() {
-  const [systems,  setSystems]  = useState([]);
-  const [loading,  setLoading]  = useState(true);
-  const [error,    setError]    = useState(null);
+  const [systems, setSystems] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [selected, setSelected] = useState(null);
 
   const load = useCallback(async () => {
@@ -404,7 +489,9 @@ export default function SystemExplorer() {
     }
   }, []);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    load();
+  }, [load]);
 
   return (
     <div className="flex h-full">
@@ -412,46 +499,32 @@ export default function SystemExplorer() {
       <div className="w-72 flex-shrink-0 border-r border-slate-800 flex flex-col">
         <div className="px-4 py-3 border-b border-slate-800 flex items-center justify-between">
           <h1 className="text-sm font-semibold text-slate-100">Systems</h1>
-          <button onClick={load} disabled={loading}
-            className="text-slate-500 hover:text-slate-300 transition-colors disabled:opacity-40">
+          <button
+            onClick={load}
+            disabled={loading}
+            className="text-slate-500 hover:text-slate-300 transition-colors disabled:opacity-40"
+          >
             <RefreshCw size={13} className={loading ? "animate-spin" : ""} />
           </button>
         </div>
 
-        {error && <div className="p-3"><Err msg={error} /></div>}
+        {error && (
+          <div className="p-3">
+            <Err msg={error} />
+          </div>
+        )}
         {loading && !systems.length && (
           <div className="p-4 text-xs text-slate-600 animate-pulse">Loading systems…</div>
         )}
 
         <div className="flex-1 overflow-y-auto">
-          {systems.map(s => (
-            <button
+          {systems.map((s) => (
+            <SystemListItem
               key={s.system_id}
-              onClick={() => setSelected(s)}
-              className={`w-full text-left px-4 py-3 border-b border-slate-800/50 transition-colors flex items-center justify-between group ${
-                selected?.system_id === s.system_id
-                  ? "bg-indigo-600/10 border-l-2 border-l-indigo-500"
-                  : "hover:bg-slate-800/40 border-l-2 border-l-transparent"
-              }`}
-            >
-              <div className="min-w-0">
-                <p className={`text-xs font-mono truncate ${
-                  selected?.system_id === s.system_id ? "text-indigo-200" : "text-slate-300"
-                }`}>{s.system_name}</p>
-                <div className="flex items-center gap-2 mt-1">
-                  <span className="text-[10px] text-slate-600 font-mono">L{s.layer_id}</span>
-                  <SovereigntyBadge level={s.sovereignty_level} />
-                  {!s.is_active && (
-                    <span className="text-[10px] text-slate-600">inactive</span>
-                  )}
-                </div>
-              </div>
-              <ChevronRight size={13}
-                className={`flex-shrink-0 ml-2 transition-colors ${
-                  selected?.system_id === s.system_id ? "text-indigo-400" : "text-slate-700 group-hover:text-slate-500"
-                }`}
-              />
-            </button>
+              system={s}
+              isSelected={selected?.system_id === s.system_id}
+              onSelect={setSelected}
+            />
           ))}
           {!loading && systems.length === 0 && (
             <p className="px-4 py-6 text-xs text-slate-600 text-center">No systems registered</p>
@@ -459,17 +532,16 @@ export default function SystemExplorer() {
         </div>
 
         <div className="px-4 py-2 border-t border-slate-800">
-          <p className="text-[10px] text-slate-700 font-mono">{systems.length} system{systems.length !== 1 ? "s" : ""}</p>
+          <p className="text-[10px] text-slate-700 font-mono">
+            {systems.length} system{systems.length !== 1 ? "s" : ""}
+          </p>
         </div>
       </div>
 
       {/* Detail panel */}
       <div className="flex-1 min-w-0 overflow-hidden">
         {selected ? (
-          <SystemDetail
-            system={selected}
-            onClose={() => setSelected(null)}
-          />
+          <SystemDetail system={selected} onClose={() => setSelected(null)} />
         ) : (
           <div className="flex flex-col items-center justify-center h-full text-center px-8">
             <Server size={32} className="text-slate-700 mb-3" />
