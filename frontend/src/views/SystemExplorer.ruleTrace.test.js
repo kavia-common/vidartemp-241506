@@ -135,4 +135,84 @@ describe("SystemExplorer Rule Trace differentiation", () => {
     expect(overlaps(setA, setC)).toEqual([]);
     expect(overlaps(setB, setC)).toEqual([]);
   });
+
+  test("system with a layer_id that has no matching rules shows deterministic empty Rule Trace state (no crash)", async () => {
+    const systems = [
+      {
+        system_id: "sys-empty",
+        system_name: "System Empty Layer",
+        layer_id: 999,
+        sovereignty_level: "SOVEREIGN",
+        is_active: true,
+        zero_cloud_required: false,
+      },
+    ];
+
+    api.get.mockImplementation((url) => {
+      if (url === "/systems") {
+        return Promise.resolve({ data: systems });
+      }
+      return Promise.resolve({ data: {} });
+    });
+
+    const user = userEvent.setup();
+    render(<SystemExplorer />);
+
+    await screen.findByText("System Empty Layer");
+
+    const wrapper = getSystemRowWrapper("System Empty Layer");
+    await user.click(within(wrapper).getByLabelText(/toggle rule trace/i));
+
+    // The UI should deterministically render its empty state message.
+    await within(wrapper).findByText("No rules traced for this system.");
+
+    // The badge count should deterministically become 0 once computed.
+    await within(wrapper).findByText(/^0$/);
+
+    // Ensure the rule-code list is empty.
+    expect(getRenderedRuleCodes(wrapper)).toEqual([]);
+  });
+
+  test("deterministic ordering stability: rendering twice yields identical ruleCode order", async () => {
+    const systems = [
+      {
+        system_id: "sys-a",
+        system_name: "System A",
+        layer_id: 1,
+        sovereignty_level: "SOVEREIGN",
+        is_active: true,
+        zero_cloud_required: false,
+      },
+    ];
+
+    api.get.mockImplementation((url) => {
+      if (url === "/systems") {
+        return Promise.resolve({ data: systems });
+      }
+      return Promise.resolve({ data: {} });
+    });
+
+    const user = userEvent.setup();
+
+    const { unmount } = render(<SystemExplorer />);
+    await screen.findByText("System A");
+
+    const wrapper1 = getSystemRowWrapper("System A");
+    await user.click(within(wrapper1).getByLabelText(/toggle rule trace/i));
+    await within(wrapper1).findByText("SOVR-001");
+    const firstRenderCodes = getRenderedRuleCodes(wrapper1);
+
+    unmount();
+
+    // Render again and ensure the same ordering is produced.
+    render(<SystemExplorer />);
+    await screen.findByText("System A");
+
+    const wrapper2 = getSystemRowWrapper("System A");
+    await user.click(within(wrapper2).getByLabelText(/toggle rule trace/i));
+    await within(wrapper2).findByText("SOVR-001");
+    const secondRenderCodes = getRenderedRuleCodes(wrapper2);
+
+    expect(secondRenderCodes).toEqual(firstRenderCodes);
+  });
 });
