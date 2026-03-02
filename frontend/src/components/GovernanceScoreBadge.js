@@ -6,8 +6,12 @@ import React from "react";
  */
 function toneForScore(score) {
   if (!Number.isFinite(score)) return "unknown";
-  if (score >= 85) return "high";
-  if (score >= 70) return "medium";
+  // Requirements:
+  // 80–100 → green
+  // 50–79  → amber
+  // <50    → red
+  if (score >= 80) return "high";
+  if (score >= 50) return "medium";
   return "low";
 }
 

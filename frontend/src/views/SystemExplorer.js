@@ -9,7 +9,7 @@ import GovernanceScoreBadge from "../components/GovernanceScoreBadge";
 import { getRiskProfileForSystem } from "../lib/getRiskProfileForSystem";
 import { getGovernanceDriftStatus } from "../lib/getGovernanceDriftStatus";
 import { getLayerConsistencyReport } from "../lib/getLayerConsistencyReport";
-import { getGovernanceScoreForSystem } from "../lib/getGovernanceScoreForSystem";
+import { getGovernanceScore } from "../lib/getGovernanceScore";
 
 /* ── small helpers ── */
 const OutcomeBadge = ({ outcome }) => {
@@ -329,16 +329,8 @@ const TABS = [
   { id: "evals",  label: "Evaluations" },
 ];
 
-function SystemDetail({ system, onClose, layerIsConsistent }) {
+function SystemDetail({ system, onClose }) {
   const [tab, setTab] = useState("risk");
-
-  const riskProfile = useMemo(() => getRiskProfileForSystem(system), [system]);
-  const govScore = useMemo(() => {
-    return getGovernanceScoreForSystem(
-      { ...system, currentRiskProfile: riskProfile },
-      { layerIsConsistent }
-    );
-  }, [system, riskProfile, layerIsConsistent]);
 
   return (
     <div className="flex flex-col h-full">
@@ -352,7 +344,6 @@ function SystemDetail({ system, onClose, layerIsConsistent }) {
           <div className="flex items-center gap-2 mt-1.5 flex-wrap">
             <span className="text-[10px] text-slate-600 font-mono">L{system.layer_id}</span>
             <SovereigntyBadge level={system.sovereignty_level} />
-            <GovernanceScoreBadge score={govScore.score} grade={govScore.grade} />
             {system.zero_cloud_required && (
               <span className="text-[10px] text-indigo-400 border border-indigo-500/30 bg-indigo-500/10 px-1.5 py-0.5 rounded font-mono">ZERO-CLOUD</span>
             )}
@@ -440,7 +431,7 @@ function GovernanceDriftBadge({ status }) {
   );
 }
 
-function SystemListItem({ system, isSelected, onSelect, layerIsConsistent }) {
+function SystemListItem({ system, isSelected, onSelect }) {
   const riskProfile = useMemo(() => getRiskProfileForSystem(system), [system]);
 
   // Per requirements: compute drift status using useMemo per system row.
@@ -449,12 +440,11 @@ function SystemListItem({ system, isSelected, onSelect, layerIsConsistent }) {
     return getGovernanceDriftStatus({ ...system, currentRiskProfile: riskProfile });
   }, [system, riskProfile]);
 
-  const govScore = useMemo(() => {
-    return getGovernanceScoreForSystem(
-      { ...system, currentRiskProfile: riskProfile },
-      { layerIsConsistent }
-    );
-  }, [system, riskProfile, layerIsConsistent]);
+  // Per requirements: compute governance score using useMemo per system row,
+  // derived strictly from riskProfile + drift status.
+  const governanceScore = useMemo(() => {
+    return getGovernanceScore(system, riskProfile, drift.status);
+  }, [system, riskProfile, drift.status]);
 
   return (
     <button
@@ -500,7 +490,7 @@ function SystemListItem({ system, isSelected, onSelect, layerIsConsistent }) {
               </span>
 
               <div className="flex items-center gap-1.5">
-                <GovernanceScoreBadge score={govScore.score} grade={govScore.grade} />
+                <GovernanceScoreBadge score={governanceScore} />
                 <GovernanceDriftBadge status={drift.status} />
               </div>
             </div>
@@ -574,13 +564,6 @@ export default function SystemExplorer() {
     );
   };
 
-  const selectedLayerKey =
-    selected?.layer_id === null || selected?.layer_id === undefined || selected?.layer_id === ""
-      ? "unknown"
-      : String(selected?.layer_id);
-
-  const selectedLayerIsConsistent = selected ? (layerConsistencyById.get(selectedLayerKey) ?? null) : null;
-
   return (
     <div className="flex h-full">
       {/* System list */}
@@ -643,18 +626,10 @@ export default function SystemExplorer() {
 
         <div className="flex-1 overflow-y-auto">
           {systems.map((s) => {
-            const layerKey =
-              s?.layer_id === null || s?.layer_id === undefined || s?.layer_id === ""
-                ? "unknown"
-                : String(s?.layer_id);
-
-            const layerIsConsistent = layerConsistencyById.get(layerKey) ?? null;
-
             return (
               <SystemListItem
                 key={s.system_id}
                 system={s}
-                layerIsConsistent={layerIsConsistent}
                 isSelected={selected?.system_id === s.system_id}
                 onSelect={setSelected}
               />
@@ -677,7 +652,6 @@ export default function SystemExplorer() {
         {selected ? (
           <SystemDetail
             system={selected}
-            layerIsConsistent={selectedLayerIsConsistent}
             onClose={() => setSelected(null)}
           />
         ) : (
