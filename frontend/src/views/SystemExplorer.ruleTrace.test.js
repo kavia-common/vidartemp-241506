@@ -26,7 +26,7 @@ jest.mock("../api/client", () => {
  * @param {HTMLElement} wrapper
  * @returns {string[]}
  */
-function getRenderedRuleCodes(wrapper) {
+function getRuleCodesFromWrapper(wrapper) {
   const els = within(wrapper).queryAllByText(/^(SOVR|COMP|CINT)-\d{3}$/);
   return els.map((el) => (el.textContent ?? "").trim()).filter(Boolean);
 }
@@ -97,7 +97,7 @@ describe("SystemExplorer Rule Trace differentiation", () => {
     const wrapperA = getSystemRowWrapper("System A");
     await user.click(within(wrapperA).getByLabelText(/toggle rule trace/i));
     await within(wrapperA).findByText("SOVR-001");
-    const codesA = getRenderedRuleCodes(wrapperA);
+    const codesA = getRuleCodesFromWrapper(wrapperA);
 
     const wrapperB = getSystemRowWrapper("System B");
     await user.click(within(wrapperB).getByLabelText(/toggle rule trace/i));

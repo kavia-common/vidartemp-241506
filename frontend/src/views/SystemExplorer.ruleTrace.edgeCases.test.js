@@ -25,7 +25,7 @@ jest.mock("../api/client", () => {
  * @param {HTMLElement} wrapper
  * @returns {string[]}
  */
-function getRenderedRuleCodes(wrapper) {
+function getRuleCodesFromWrapper(wrapper) {
   const els = within(wrapper).queryAllByText(/^[A-Z0-9]+-\d{3}$/);
   return els.map((el) => (el.textContent ?? "").trim()).filter(Boolean);
 }
@@ -128,7 +128,7 @@ describe("SystemExplorer Rule Trace edge cases (spyOn registry)", () => {
     await within(wrapperA).findByText("STR-001");
     expect(within(wrapperA).queryByText("L2-001")).toBeNull();
 
-    const codesA = getRenderedRuleCodes(wrapperA);
+    const codesA = getRuleCodesFromWrapper(wrapperA);
     expect(codesA).toEqual([...codesA].sort((a, b) => a.localeCompare(b)));
 
     // Layer 2 system: should include MULTI-001 and L2-001; must NOT include STR-001.
