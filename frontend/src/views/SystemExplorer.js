@@ -6,6 +6,7 @@ import {
 import api from "../api/client";
 import SovereigntyBadge from "../components/SovereigntyBadge";
 import { getRiskProfileForSystem } from "../lib/getRiskProfileForSystem";
+import { getLayerConsistencyReport } from "../lib/getLayerConsistencyReport";
 
 /* ── small helpers ── */
 const OutcomeBadge = ({ outcome }) => {
@@ -493,6 +494,24 @@ export default function SystemExplorer() {
     load();
   }, [load]);
 
+  const layerConsistencyReport = useMemo(() => {
+    return getLayerConsistencyReport(systems);
+  }, [systems]);
+
+  const ConsistencyBadge = ({ consistent }) => {
+    const cls = consistent
+      ? "bg-emerald-500/15 text-emerald-300 border-emerald-500/30"
+      : "bg-amber-500/15 text-amber-300 border-amber-500/30";
+
+    return (
+      <span
+        className={`inline-flex px-2 py-0.5 rounded border text-[10px] font-mono font-semibold ${cls}`}
+      >
+        {consistent ? "CONSISTENT" : "MIXED"}
+      </span>
+    );
+  };
+
   return (
     <div className="flex h-full">
       {/* System list */}
@@ -507,6 +526,42 @@ export default function SystemExplorer() {
             <RefreshCw size={13} className={loading ? "animate-spin" : ""} />
           </button>
         </div>
+
+        {/* Layer Summary (deterministic, derived from metadata-only risk profiles) */}
+        {systems.length > 0 && (
+          <div className="px-4 py-3 border-b border-slate-800">
+            <div className="bg-[#0d0d14] border border-slate-800 rounded-lg p-3">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <Layers size={13} className="text-slate-500" />
+                  <p className="text-[10px] text-slate-500 font-mono uppercase tracking-widest">
+                    Layer Summary
+                  </p>
+                </div>
+                <span className="text-[10px] text-slate-600 font-mono tabular-nums">
+                  {layerConsistencyReport.totals.consistentLayerCount}/
+                  {layerConsistencyReport.totals.layerCount} consistent
+                </span>
+              </div>
+
+              <div className="space-y-1.5">
+                {layerConsistencyReport.layers.map((l) => (
+                  <div key={l.layerId} className="flex items-center justify-between">
+                    <span className="text-[11px] text-slate-300 font-mono">
+                      {l.layerId === "unknown" ? "L—" : `L${l.layerId}`}
+                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] text-slate-600 font-mono tabular-nums">
+                        {l.systemCount} sys
+                      </span>
+                      <ConsistencyBadge consistent={l.isConsistent} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
 
         {error && (
           <div className="p-3">
