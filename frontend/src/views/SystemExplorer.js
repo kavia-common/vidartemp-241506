@@ -13,6 +13,12 @@ import {
 import api from "../api/client";
 import SovereigntyBadge from "../components/SovereigntyBadge";
 import { getRuleMetadata } from "../engine/ruleRegistry";
+import { getRulesForSystem } from "../engine/ruleSelectors";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "../components/ui/collapsible";
 
 /* ── small helpers ── */
 const OutcomeBadge = ({ outcome }) => {
@@ -48,6 +54,146 @@ const EmptyRow = ({ cols, label }) => (
     </td>
   </tr>
 );
+
+/**
+ * Sidebar system item with a collapsible Rule Trace section.
+ * Rule Trace is metadata-only and derived deterministically from the local rule registry.
+ */
+function SystemListItem({ system, isSelected, onSelect }) {
+  const rules = useMemo(() => getRulesForSystem(system), [system]);
+
+  const [traceOpen, setTraceOpen] = useState(false);
+
+  // Reset open state if the list is reloaded and we receive a different system instance.
+  useEffect(() => {
+    setTraceOpen(false);
+  }, [system?.system_id]);
+
+  return (
+    <div
+      className={`w-full border-b border-slate-800/50 transition-colors ${
+        isSelected ? "bg-indigo-600/10" : "hover:bg-slate-800/40"
+      }`}
+    >
+      {/* Main select button (keeps existing selection behavior) */}
+      <button
+        type="button"
+        onClick={() => onSelect(system)}
+        className={`w-full text-left px-4 py-3 transition-colors flex items-center justify-between group border-l-2 ${
+          isSelected ? "border-l-indigo-500" : "border-l-transparent"
+        }`}
+      >
+        <div className="min-w-0">
+          <p
+            className={`text-xs font-mono truncate ${
+              isSelected ? "text-indigo-200" : "text-slate-300"
+            }`}
+          >
+            {system.system_name}
+          </p>
+          <div className="flex items-center gap-2 mt-1">
+            <span className="text-[10px] text-slate-600 font-mono">
+              L{system.layer_id}
+            </span>
+            <SovereigntyBadge level={system.sovereignty_level} />
+            {!system.is_active && (
+              <span className="text-[10px] text-slate-600">inactive</span>
+            )}
+          </div>
+        </div>
+
+        <ChevronRight
+          size={13}
+          className={`flex-shrink-0 ml-2 transition-colors ${
+            isSelected
+              ? "text-indigo-400"
+              : "text-slate-700 group-hover:text-slate-500"
+          }`}
+        />
+      </button>
+
+      {/* Collapsible Rule Trace */}
+      <div className="px-4 pb-3">
+        <Collapsible open={traceOpen} onOpenChange={setTraceOpen}>
+          <CollapsibleTrigger asChild>
+            <button
+              type="button"
+              className="w-full flex items-center justify-between gap-2 text-left"
+              aria-label="Toggle rule trace"
+            >
+              <div className="flex items-center gap-2 min-w-0">
+                <ChevronRight
+                  size={12}
+                  className={`text-slate-600 transition-transform ${
+                    traceOpen ? "rotate-90" : ""
+                  }`}
+                />
+                <span className="text-[10px] text-slate-500 font-mono uppercase tracking-widest">
+                  Rule Trace
+                </span>
+                <span className="text-[10px] font-mono px-1.5 py-0.5 rounded border border-slate-800 bg-[#0d0d14] text-slate-500">
+                  {rules.length}
+                </span>
+              </div>
+
+              <span className="text-[10px] text-slate-700 font-mono whitespace-nowrap">
+                metadata only
+              </span>
+            </button>
+          </CollapsibleTrigger>
+
+          <CollapsibleContent>
+            <div className="mt-2 bg-[#0d0d14] border border-slate-800 rounded-lg overflow-hidden">
+              {rules.length === 0 ? (
+                <div className="px-3 py-3 text-xs text-slate-600">
+                  No rules traced for this system.
+                </div>
+              ) : (
+                <div className="divide-y divide-slate-800/60">
+                  {rules.map((r) => (
+                    <div key={r.ruleCode} className="px-3 py-2">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0">
+                          <div className="text-xs font-mono text-slate-200 truncate">
+                            {r.ruleCode}
+                          </div>
+                          {r.description ? (
+                            <div className="mt-1 text-[11px] leading-snug text-slate-500">
+                              {r.description}
+                            </div>
+                          ) : null}
+                        </div>
+
+                        <div className="flex flex-col items-end gap-1 flex-shrink-0">
+                          {r.domain ? (
+                            <span className="text-[10px] font-mono px-1.5 py-0.5 rounded border border-indigo-500/20 bg-indigo-500/10 text-indigo-300">
+                              {r.domain}
+                            </span>
+                          ) : null}
+                          {r.introducedInPolicyVersion ? (
+                            <span className="text-[10px] text-slate-700 font-mono">
+                              v{r.introducedInPolicyVersion}
+                            </span>
+                          ) : null}
+                        </div>
+                      </div>
+
+                      {r.documentReference ? (
+                        <div className="mt-2 text-[10px] font-mono text-slate-600">
+                          {r.documentReference}
+                        </div>
+                      ) : null}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
+      </div>
+    </div>
+  );
+}
 
 /* ────────────────────────────────────────────────────────────────────────────
    Tab: Risk Summary
@@ -799,44 +945,12 @@ export default function SystemExplorer() {
 
         <div className="flex-1 overflow-y-auto">
           {systems.map((s) => (
-            <button
+            <SystemListItem
               key={s.system_id}
-              onClick={() => setSelected(s)}
-              className={`w-full text-left px-4 py-3 border-b border-slate-800/50 transition-colors flex items-center justify-between group ${
-                selected?.system_id === s.system_id
-                  ? "bg-indigo-600/10 border-l-2 border-l-indigo-500"
-                  : "hover:bg-slate-800/40 border-l-2 border-l-transparent"
-              }`}
-            >
-              <div className="min-w-0">
-                <p
-                  className={`text-xs font-mono truncate ${
-                    selected?.system_id === s.system_id
-                      ? "text-indigo-200"
-                      : "text-slate-300"
-                  }`}
-                >
-                  {s.system_name}
-                </p>
-                <div className="flex items-center gap-2 mt-1">
-                  <span className="text-[10px] text-slate-600 font-mono">
-                    L{s.layer_id}
-                  </span>
-                  <SovereigntyBadge level={s.sovereignty_level} />
-                  {!s.is_active && (
-                    <span className="text-[10px] text-slate-600">inactive</span>
-                  )}
-                </div>
-              </div>
-              <ChevronRight
-                size={13}
-                className={`flex-shrink-0 ml-2 transition-colors ${
-                  selected?.system_id === s.system_id
-                    ? "text-indigo-400"
-                    : "text-slate-700 group-hover:text-slate-500"
-                }`}
-              />
-            </button>
+              system={s}
+              isSelected={selected?.system_id === s.system_id}
+              onSelect={setSelected}
+            />
           ))}
           {!loading && systems.length === 0 && (
             <p className="px-4 py-6 text-xs text-slate-600 text-center">
