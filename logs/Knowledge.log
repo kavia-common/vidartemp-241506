@@ -1417,3 +1417,254 @@
 2026-03-01 10:31:12,251 - Knowledge - INFO - ⚡ Total Redis path: 0.97s (vs ~300s from disk)
 2026-03-01 10:31:12,413 - Knowledge - INFO - Saving knowledge to Redis...
 2026-03-01 10:31:12,907 - Knowledge - INFO - Knowledge saved to Redis successfully
+2026-03-02 06:30:21,022 - Knowledge - INFO - Created shared MongoDB connection pool
+2026-03-02 06:30:21,426 - Knowledge - INFO - Starting Knowledge Graph processing with 20 threads
+2026-03-02 06:30:21,588 - Knowledge - INFO - Initial configuration: chunk_size=65536, max_cache_size=500
+2026-03-02 06:30:21,767 - Knowledge - INFO - Knowledge Graph concurrency configuration: workers=20, max_batch_size=10, max_concurrent_llm_calls=50
+2026-03-02 06:30:23,214 - Knowledge - INFO - 🔍 _load_persisted_knowledge called - checking for Redis optimization
+2026-03-02 06:30:23,395 - Knowledge - WARNING - ❌ load_from_redis method not found - Redis support not attached
+2026-03-02 06:30:23,604 - Knowledge - INFO - load persisted knowledge: begin
+2026-03-02 06:30:23,814 - Knowledge - INFO - Found code-base-name: https://github.com/kavia-common/vidartemp-241506.git:kavia-main-4560
+2026-03-02 06:30:23,982 - Knowledge - INFO - Found code_base: <app.utils.kg_build.knowledge.KnowledgeCodeBase object at 0x7f620c99e250>
+2026-03-02 06:30:24,208 - Knowledge - INFO - process ingested knowledge for /app/data/b2c/241506/b252008/vidartemp-241506/frontend/src/views/GovernanceTraceView.js
+2026-03-02 06:30:24,428 - Knowledge - INFO - Found code-base-name: https://github.com/kavia-common/vidartemp-241506.git:kavia-main-4560
+2026-03-02 06:30:24,636 - Knowledge - INFO - Found code_base: <app.utils.kg_build.knowledge.KnowledgeCodeBase object at 0x7f620c99e250>
+2026-03-02 06:30:24,854 - Knowledge - INFO - process ingested knowledge for /app/data/b2c/241506/b252008/vidartemp-241506/frontend/src/components/ui/drawer.jsx
+2026-03-02 06:30:25,114 - Knowledge - INFO - Found code-base-name: https://github.com/kavia-common/vidartemp-241506.git:kavia-main-4560
+2026-03-02 06:30:25,301 - Knowledge - INFO - Found code_base: <app.utils.kg_build.knowledge.KnowledgeCodeBase object at 0x7f620c99e250>
+2026-03-02 06:30:25,469 - Knowledge - INFO - process ingested knowledge for /app/data/b2c/241506/b252008/vidartemp-241506/frontend/src/components/ui/skeleton.jsx
+2026-03-02 06:30:25,647 - Knowledge - INFO - Found code-base-name: https://github.com/kavia-common/vidartemp-241506.git:kavia-main-4560
+2026-03-02 06:30:25,844 - Knowledge - INFO - Found code_base: <app.utils.kg_build.knowledge.KnowledgeCodeBase object at 0x7f620c99e250>
+2026-03-02 06:30:26,067 - Knowledge - INFO - process ingested knowledge for /app/data/b2c/241506/b252008/vidartemp-241506/frontend/src/components/ui/sonner.jsx
+2026-03-02 06:30:26,245 - Knowledge - INFO - Found code-base-name: https://github.com/kavia-common/vidartemp-241506.git:kavia-main-4560
+2026-03-02 06:30:26,435 - Knowledge - INFO - Found code_base: <app.utils.kg_build.knowledge.KnowledgeCodeBase object at 0x7f620c99e250>
+2026-03-02 06:30:26,627 - Knowledge - INFO - process ingested knowledge for /app/data/b2c/241506/b252008/vidartemp-241506/frontend/src/components/ui/alert-dialog.jsx
+2026-03-02 06:30:26,803 - Knowledge - INFO - Found code-base-name: https://github.com/kavia-common/vidartemp-241506.git:kavia-main-4560
+2026-03-02 06:30:27,004 - Knowledge - INFO - Found code_base: <app.utils.kg_build.knowledge.KnowledgeCodeBase object at 0x7f620c99e250>
+2026-03-02 06:30:27,177 - Knowledge - INFO - process ingested knowledge for /app/data/b2c/241506/b252008/vidartemp-241506/frontend/src/components/ui/scroll-area.jsx
+2026-03-02 06:30:27,391 - Knowledge - INFO - Found code-base-name: https://github.com/kavia-common/vidartemp-241506.git:kavia-main-4560
+2026-03-02 06:30:27,585 - Knowledge - INFO - Found code_base: <app.utils.kg_build.knowledge.KnowledgeCodeBase object at 0x7f620c99e250>
+2026-03-02 06:30:27,820 - Knowledge - INFO - process ingested knowledge for /app/data/b2c/241506/b252008/vidartemp-241506/frontend/src/components/ui/progress.jsx
+2026-03-02 06:30:27,985 - Knowledge - INFO - Found code-base-name: https://github.com/kavia-common/vidartemp-241506.git:kavia-main-4560
+2026-03-02 06:30:28,184 - Knowledge - INFO - Found code_base: <app.utils.kg_build.knowledge.KnowledgeCodeBase object at 0x7f620c99e250>
+2026-03-02 06:30:28,410 - Knowledge - INFO - process ingested knowledge for /app/data/b2c/241506/b252008/vidartemp-241506/frontend/src/components/SovereigntyBadge.js
+2026-03-02 06:30:28,650 - Knowledge - INFO - Found code-base-name: https://github.com/kavia-common/vidartemp-241506.git:kavia-main-4560
+2026-03-02 06:30:28,838 - Knowledge - INFO - Found code_base: <app.utils.kg_build.knowledge.KnowledgeCodeBase object at 0x7f620c99e250>
+2026-03-02 06:30:29,046 - Knowledge - INFO - process ingested knowledge for /app/data/b2c/241506/b252008/vidartemp-241506/frontend/src/lib/utils.js
+2026-03-02 06:30:29,255 - Knowledge - INFO - Found code-base-name: https://github.com/kavia-common/vidartemp-241506.git:kavia-main-4560
+2026-03-02 06:30:29,437 - Knowledge - INFO - Found code_base: <app.utils.kg_build.knowledge.KnowledgeCodeBase object at 0x7f620c99e250>
+2026-03-02 06:30:29,640 - Knowledge - INFO - process ingested knowledge for /app/data/b2c/241506/b252008/vidartemp-241506/frontend/public/index.html
+2026-03-02 06:30:29,836 - Knowledge - INFO - Found code-base-name: https://github.com/kavia-common/vidartemp-241506.git:kavia-main-4560
+2026-03-02 06:30:30,014 - Knowledge - INFO - Found code_base: <app.utils.kg_build.knowledge.KnowledgeCodeBase object at 0x7f620c99e250>
+2026-03-02 06:30:30,209 - Knowledge - INFO - process ingested knowledge for /app/data/b2c/241506/b252008/vidartemp-241506/frontend/src/views/SystemExplorer.js
+2026-03-02 06:30:30,434 - Knowledge - INFO - Found code-base-name: https://github.com/kavia-common/vidartemp-241506.git:kavia-main-4560
+2026-03-02 06:30:30,673 - Knowledge - INFO - Found code_base: <app.utils.kg_build.knowledge.KnowledgeCodeBase object at 0x7f620c99e250>
+2026-03-02 06:30:30,883 - Knowledge - INFO - process ingested knowledge for /app/data/b2c/241506/b252008/vidartemp-241506/frontend/src/components/ui/radio-group.jsx
+2026-03-02 06:30:31,119 - Knowledge - INFO - Found code-base-name: https://github.com/kavia-common/vidartemp-241506.git:kavia-main-4560
+2026-03-02 06:30:31,362 - Knowledge - INFO - Found code_base: <app.utils.kg_build.knowledge.KnowledgeCodeBase object at 0x7f620c99e250>
+2026-03-02 06:30:31,552 - Knowledge - INFO - process ingested knowledge for /app/data/b2c/241506/b252008/vidartemp-241506/frontend/STATIC_ANALYSIS_REPORT.md
+2026-03-02 06:30:31,786 - Knowledge - INFO - Found code-base-name: https://github.com/kavia-common/vidartemp-241506.git:kavia-main-4560
+2026-03-02 06:30:31,960 - Knowledge - INFO - Found code_base: <app.utils.kg_build.knowledge.KnowledgeCodeBase object at 0x7f620c99e250>
+2026-03-02 06:30:32,184 - Knowledge - INFO - process ingested knowledge for /app/data/b2c/241506/b252008/vidartemp-241506/frontend/src/components/ui/sheet.jsx
+2026-03-02 06:30:32,396 - Knowledge - INFO - Found code-base-name: https://github.com/kavia-common/vidartemp-241506.git:kavia-main-4560
+2026-03-02 06:30:32,568 - Knowledge - INFO - Found code_base: <app.utils.kg_build.knowledge.KnowledgeCodeBase object at 0x7f620c99e250>
+2026-03-02 06:30:32,740 - Knowledge - INFO - process ingested knowledge for /app/data/b2c/241506/b252008/vidartemp-241506/frontend/src/components/Layout.js
+2026-03-02 06:30:32,947 - Knowledge - INFO - Found code-base-name: https://github.com/kavia-common/vidartemp-241506.git:kavia-main-4560
+2026-03-02 06:30:33,151 - Knowledge - INFO - Found code_base: <app.utils.kg_build.knowledge.KnowledgeCodeBase object at 0x7f620c99e250>
+2026-03-02 06:30:33,398 - Knowledge - INFO - process ingested knowledge for /app/data/b2c/241506/b252008/vidartemp-241506/frontend/plugins/visual-edits/babel-metadata-plugin.js
+2026-03-02 06:30:33,651 - Knowledge - INFO - Found code-base-name: https://github.com/kavia-common/vidartemp-241506.git:kavia-main-4560
+2026-03-02 06:30:33,853 - Knowledge - INFO - Found code_base: <app.utils.kg_build.knowledge.KnowledgeCodeBase object at 0x7f620c99e250>
+2026-03-02 06:30:34,015 - Knowledge - INFO - process ingested knowledge for /app/data/b2c/241506/b252008/vidartemp-241506/frontend/src/components/ui/separator.jsx
+2026-03-02 06:30:34,238 - Knowledge - INFO - Found code-base-name: https://github.com/kavia-common/vidartemp-241506.git:kavia-main-4560
+2026-03-02 06:30:34,449 - Knowledge - INFO - Found code_base: <app.utils.kg_build.knowledge.KnowledgeCodeBase object at 0x7f620c99e250>
+2026-03-02 06:30:34,666 - Knowledge - INFO - process ingested knowledge for /app/data/b2c/241506/b252008/vidartemp-241506/frontend/src/components/ui/resizable.jsx
+2026-03-02 06:30:34,916 - Knowledge - INFO - Found code-base-name: https://github.com/kavia-common/vidartemp-241506.git:kavia-main-4560
+2026-03-02 06:30:35,098 - Knowledge - INFO - Found code_base: <app.utils.kg_build.knowledge.KnowledgeCodeBase object at 0x7f620c99e250>
+2026-03-02 06:30:35,302 - Knowledge - INFO - process ingested knowledge for /app/data/b2c/241506/b252008/vidartemp-241506/frontend/README.md
+2026-03-02 06:30:35,476 - Knowledge - INFO - Found code-base-name: https://github.com/kavia-common/vidartemp-241506.git:kavia-main-4560
+2026-03-02 06:30:35,667 - Knowledge - INFO - Found code_base: <app.utils.kg_build.knowledge.KnowledgeCodeBase object at 0x7f620c99e250>
+2026-03-02 06:30:35,844 - Knowledge - INFO - process ingested knowledge for /app/data/b2c/241506/b252008/vidartemp-241506/frontend/src/components/ui/checkbox.jsx
+2026-03-02 06:30:36,064 - Knowledge - INFO - Found code-base-name: https://github.com/kavia-common/vidartemp-241506.git:kavia-main-4560
+2026-03-02 06:30:36,247 - Knowledge - INFO - Found code_base: <app.utils.kg_build.knowledge.KnowledgeCodeBase object at 0x7f620c99e250>
+2026-03-02 06:30:36,464 - Knowledge - INFO - process ingested knowledge for /app/data/b2c/241506/b252008/vidartemp-241506/frontend/src/App.js
+2026-03-02 06:30:36,647 - Knowledge - INFO - Found code-base-name: https://github.com/kavia-common/vidartemp-241506.git:kavia-main-4560
+2026-03-02 06:30:36,851 - Knowledge - INFO - Found code_base: <app.utils.kg_build.knowledge.KnowledgeCodeBase object at 0x7f620c99e250>
+2026-03-02 06:30:37,084 - Knowledge - INFO - process ingested knowledge for /app/data/b2c/241506/b252008/vidartemp-241506/GIT_BRANCH_AND_LOG.txt
+2026-03-02 06:30:37,304 - Knowledge - INFO - Found code-base-name: https://github.com/kavia-common/vidartemp-241506.git:kavia-main-4560
+2026-03-02 06:30:37,559 - Knowledge - INFO - Found code_base: <app.utils.kg_build.knowledge.KnowledgeCodeBase object at 0x7f620c99e250>
+2026-03-02 06:30:37,779 - Knowledge - INFO - process ingested knowledge for /app/data/b2c/241506/b252008/vidartemp-241506/frontend/src/components/ui/context-menu.jsx
+2026-03-02 06:30:38,035 - Knowledge - INFO - Found code-base-name: https://github.com/kavia-common/vidartemp-241506.git:kavia-main-4560
+2026-03-02 06:30:38,213 - Knowledge - INFO - Found code_base: <app.utils.kg_build.knowledge.KnowledgeCodeBase object at 0x7f620c99e250>
+2026-03-02 06:30:38,438 - Knowledge - INFO - process ingested knowledge for /app/data/b2c/241506/b252008/vidartemp-241506/frontend/jsconfig.json
+2026-03-02 06:30:38,625 - Knowledge - INFO - Found code-base-name: https://github.com/kavia-common/vidartemp-241506.git:kavia-main-4560
+2026-03-02 06:30:38,817 - Knowledge - INFO - Found code_base: <app.utils.kg_build.knowledge.KnowledgeCodeBase object at 0x7f620c99e250>
+2026-03-02 06:30:39,054 - Knowledge - INFO - process ingested knowledge for /app/data/b2c/241506/b252008/vidartemp-241506/frontend/plugins/health-check/health-endpoints.js
+2026-03-02 06:30:39,253 - Knowledge - INFO - Found code-base-name: https://github.com/kavia-common/vidartemp-241506.git:kavia-main-4560
+2026-03-02 06:30:39,419 - Knowledge - INFO - Found code_base: <app.utils.kg_build.knowledge.KnowledgeCodeBase object at 0x7f620c99e250>
+2026-03-02 06:30:39,632 - Knowledge - INFO - process ingested knowledge for /app/data/b2c/241506/b252008/vidartemp-241506/frontend/src/components/ui/breadcrumb.jsx
+2026-03-02 06:30:39,850 - Knowledge - INFO - Found code-base-name: https://github.com/kavia-common/vidartemp-241506.git:kavia-main-4560
+2026-03-02 06:30:40,033 - Knowledge - INFO - Found code_base: <app.utils.kg_build.knowledge.KnowledgeCodeBase object at 0x7f620c99e250>
+2026-03-02 06:30:40,201 - Knowledge - INFO - process ingested knowledge for /app/data/b2c/241506/b252008/vidartemp-241506/frontend/src/views/AmendmentConsole.js
+2026-03-02 06:30:40,403 - Knowledge - INFO - Found code-base-name: https://github.com/kavia-common/vidartemp-241506.git:kavia-main-4560
+2026-03-02 06:30:40,625 - Knowledge - INFO - Found code_base: <app.utils.kg_build.knowledge.KnowledgeCodeBase object at 0x7f620c99e250>
+2026-03-02 06:30:40,793 - Knowledge - INFO - process ingested knowledge for /app/data/b2c/241506/b252008/vidartemp-241506/frontend/tailwind.config.js
+2026-03-02 06:30:41,031 - Knowledge - INFO - Found code-base-name: https://github.com/kavia-common/vidartemp-241506.git:kavia-main-4560
+2026-03-02 06:30:41,248 - Knowledge - INFO - Found code_base: <app.utils.kg_build.knowledge.KnowledgeCodeBase object at 0x7f620c99e250>
+2026-03-02 06:30:41,434 - Knowledge - INFO - process ingested knowledge for /app/data/b2c/241506/b252008/vidartemp-241506/frontend/src/components/ui/dropdown-menu.jsx
+2026-03-02 06:30:41,672 - Knowledge - INFO - Found code-base-name: https://github.com/kavia-common/vidartemp-241506.git:kavia-main-4560
+2026-03-02 06:30:41,847 - Knowledge - INFO - Found code_base: <app.utils.kg_build.knowledge.KnowledgeCodeBase object at 0x7f620c99e250>
+2026-03-02 06:30:42,046 - Knowledge - INFO - process ingested knowledge for /app/data/b2c/241506/b252008/vidartemp-241506/frontend/src/components/ui/avatar.jsx
+2026-03-02 06:30:42,251 - Knowledge - INFO - Found code-base-name: https://github.com/kavia-common/vidartemp-241506.git:kavia-main-4560
+2026-03-02 06:30:42,422 - Knowledge - INFO - Found code_base: <app.utils.kg_build.knowledge.KnowledgeCodeBase object at 0x7f620c99e250>
+2026-03-02 06:30:42,610 - Knowledge - INFO - process ingested knowledge for /app/data/b2c/241506/b252008/vidartemp-241506/frontend/src/components/ui/command.jsx
+2026-03-02 06:30:42,821 - Knowledge - INFO - Found code-base-name: https://github.com/kavia-common/vidartemp-241506.git:kavia-main-4560
+2026-03-02 06:30:43,019 - Knowledge - INFO - Found code_base: <app.utils.kg_build.knowledge.KnowledgeCodeBase object at 0x7f620c99e250>
+2026-03-02 06:30:43,245 - Knowledge - INFO - process ingested knowledge for /app/data/b2c/241506/b252008/vidartemp-241506/frontend/src/components/ui/toast.jsx
+2026-03-02 06:30:43,485 - Knowledge - INFO - Found code-base-name: https://github.com/kavia-common/vidartemp-241506.git:kavia-main-4560
+2026-03-02 06:30:43,658 - Knowledge - INFO - Found code_base: <app.utils.kg_build.knowledge.KnowledgeCodeBase object at 0x7f620c99e250>
+2026-03-02 06:30:43,832 - Knowledge - INFO - process ingested knowledge for /app/data/b2c/241506/b252008/vidartemp-241506/frontend/src/components/ui/tooltip.jsx
+2026-03-02 06:30:44,026 - Knowledge - INFO - Found code-base-name: https://github.com/kavia-common/vidartemp-241506.git:kavia-main-4560
+2026-03-02 06:30:44,306 - Knowledge - INFO - Found code_base: <app.utils.kg_build.knowledge.KnowledgeCodeBase object at 0x7f620c99e250>
+2026-03-02 06:30:44,485 - Knowledge - INFO - process ingested knowledge for /app/data/b2c/241506/b252008/vidartemp-241506/frontend/BUNDLE_ANALYSIS_REPORT.md
+2026-03-02 06:30:44,702 - Knowledge - INFO - Found code-base-name: https://github.com/kavia-common/vidartemp-241506.git:kavia-main-4560
+2026-03-02 06:30:44,903 - Knowledge - INFO - Found code_base: <app.utils.kg_build.knowledge.KnowledgeCodeBase object at 0x7f620c99e250>
+2026-03-02 06:30:45,111 - Knowledge - INFO - process ingested knowledge for /app/data/b2c/241506/b252008/vidartemp-241506/frontend/craco.config.js
+2026-03-02 06:30:45,345 - Knowledge - INFO - Found code-base-name: https://github.com/kavia-common/vidartemp-241506.git:kavia-main-4560
+2026-03-02 06:30:45,557 - Knowledge - INFO - Found code_base: <app.utils.kg_build.knowledge.KnowledgeCodeBase object at 0x7f620c99e250>
+2026-03-02 06:30:45,807 - Knowledge - INFO - process ingested knowledge for /app/data/b2c/241506/b252008/vidartemp-241506/frontend/src/components/ui/popover.jsx
+2026-03-02 06:30:46,012 - Knowledge - INFO - Found code-base-name: https://github.com/kavia-common/vidartemp-241506.git:kavia-main-4560
+2026-03-02 06:30:46,264 - Knowledge - INFO - Found code_base: <app.utils.kg_build.knowledge.KnowledgeCodeBase object at 0x7f620c99e250>
+2026-03-02 06:30:46,506 - Knowledge - INFO - process ingested knowledge for /app/data/b2c/241506/b252008/vidartemp-241506/frontend/src/components/ui/hover-card.jsx
+2026-03-02 06:30:46,711 - Knowledge - INFO - Found code-base-name: https://github.com/kavia-common/vidartemp-241506.git:kavia-main-4560
+2026-03-02 06:30:46,883 - Knowledge - INFO - Found code_base: <app.utils.kg_build.knowledge.KnowledgeCodeBase object at 0x7f620c99e250>
+2026-03-02 06:30:47,109 - Knowledge - INFO - process ingested knowledge for /app/data/b2c/241506/b252008/vidartemp-241506/frontend/GIT_CLEANUP_NOTE.md
+2026-03-02 06:30:47,327 - Knowledge - INFO - Found code-base-name: https://github.com/kavia-common/vidartemp-241506.git:kavia-main-4560
+2026-03-02 06:30:47,506 - Knowledge - INFO - Found code_base: <app.utils.kg_build.knowledge.KnowledgeCodeBase object at 0x7f620c99e250>
+2026-03-02 06:30:47,726 - Knowledge - INFO - process ingested knowledge for /app/data/b2c/241506/b252008/vidartemp-241506/frontend/src/components/ui/slider.jsx
+2026-03-02 06:30:47,937 - Knowledge - INFO - Found code-base-name: https://github.com/kavia-common/vidartemp-241506.git:kavia-main-4560
+2026-03-02 06:30:48,122 - Knowledge - INFO - Found code_base: <app.utils.kg_build.knowledge.KnowledgeCodeBase object at 0x7f620c99e250>
+2026-03-02 06:30:48,320 - Knowledge - INFO - process ingested knowledge for /app/data/b2c/241506/b252008/vidartemp-241506/frontend/src/App.css
+2026-03-02 06:30:48,581 - Knowledge - INFO - Found code-base-name: https://github.com/kavia-common/vidartemp-241506.git:kavia-main-4560
+2026-03-02 06:30:48,774 - Knowledge - INFO - Found code_base: <app.utils.kg_build.knowledge.KnowledgeCodeBase object at 0x7f620c99e250>
+2026-03-02 06:30:48,973 - Knowledge - INFO - process ingested knowledge for /app/data/b2c/241506/b252008/vidartemp-241506/frontend/src/components/ui/badge.jsx
+2026-03-02 06:30:49,160 - Knowledge - INFO - Found code-base-name: https://github.com/kavia-common/vidartemp-241506.git:kavia-main-4560
+2026-03-02 06:30:49,327 - Knowledge - INFO - Found code_base: <app.utils.kg_build.knowledge.KnowledgeCodeBase object at 0x7f620c99e250>
+2026-03-02 06:30:49,542 - Knowledge - INFO - process ingested knowledge for /app/data/b2c/241506/b252008/vidartemp-241506/frontend/GIT_STATE_SUMMARY.txt
+2026-03-02 06:30:49,720 - Knowledge - INFO - Found code-base-name: https://github.com/kavia-common/vidartemp-241506.git:kavia-main-4560
+2026-03-02 06:30:49,904 - Knowledge - INFO - Found code_base: <app.utils.kg_build.knowledge.KnowledgeCodeBase object at 0x7f620c99e250>
+2026-03-02 06:30:50,087 - Knowledge - INFO - process ingested knowledge for /app/data/b2c/241506/b252008/vidartemp-241506/frontend/src/components/ui/carousel.jsx
+2026-03-02 06:30:50,331 - Knowledge - INFO - Found code-base-name: https://github.com/kavia-common/vidartemp-241506.git:kavia-main-4560
+2026-03-02 06:30:50,550 - Knowledge - INFO - Found code_base: <app.utils.kg_build.knowledge.KnowledgeCodeBase object at 0x7f620c99e250>
+2026-03-02 06:30:50,757 - Knowledge - INFO - process ingested knowledge for /app/data/b2c/241506/b252008/vidartemp-241506/frontend/src/hooks/use-toast.js
+2026-03-02 06:30:50,983 - Knowledge - INFO - Found code-base-name: https://github.com/kavia-common/vidartemp-241506.git:kavia-main-4560
+2026-03-02 06:30:51,183 - Knowledge - INFO - Found code_base: <app.utils.kg_build.knowledge.KnowledgeCodeBase object at 0x7f620c99e250>
+2026-03-02 06:30:51,374 - Knowledge - INFO - process ingested knowledge for /app/data/b2c/241506/b252008/vidartemp-241506/frontend/src/api/client.js
+2026-03-02 06:30:51,580 - Knowledge - INFO - Found code-base-name: https://github.com/kavia-common/vidartemp-241506.git:kavia-main-4560
+2026-03-02 06:30:51,762 - Knowledge - INFO - Found code_base: <app.utils.kg_build.knowledge.KnowledgeCodeBase object at 0x7f620c99e250>
+2026-03-02 06:30:51,930 - Knowledge - INFO - process ingested knowledge for /app/data/b2c/241506/b252008/vidartemp-241506/frontend/src/components/ui/textarea.jsx
+2026-03-02 06:30:52,136 - Knowledge - INFO - Found code-base-name: https://github.com/kavia-common/vidartemp-241506.git:kavia-main-4560
+2026-03-02 06:30:52,330 - Knowledge - INFO - Found code_base: <app.utils.kg_build.knowledge.KnowledgeCodeBase object at 0x7f620c99e250>
+2026-03-02 06:30:52,534 - Knowledge - INFO - process ingested knowledge for /app/data/b2c/241506/b252008/vidartemp-241506/frontend/src/index.js
+2026-03-02 06:30:52,765 - Knowledge - INFO - Found code-base-name: https://github.com/kavia-common/vidartemp-241506.git:kavia-main-4560
+2026-03-02 06:30:52,990 - Knowledge - INFO - Found code_base: <app.utils.kg_build.knowledge.KnowledgeCodeBase object at 0x7f620c99e250>
+2026-03-02 06:30:53,186 - Knowledge - INFO - process ingested knowledge for /app/data/b2c/241506/b252008/vidartemp-241506/frontend/src/components/ui/pagination.jsx
+2026-03-02 06:30:53,400 - Knowledge - INFO - Found code-base-name: https://github.com/kavia-common/vidartemp-241506.git:kavia-main-4560
+2026-03-02 06:30:53,567 - Knowledge - INFO - Found code_base: <app.utils.kg_build.knowledge.KnowledgeCodeBase object at 0x7f620c99e250>
+2026-03-02 06:30:53,766 - Knowledge - INFO - process ingested knowledge for /app/data/b2c/241506/b252008/vidartemp-241506/frontend/components.json
+2026-03-02 06:30:54,023 - Knowledge - INFO - Found code-base-name: https://github.com/kavia-common/vidartemp-241506.git:kavia-main-4560
+2026-03-02 06:30:54,276 - Knowledge - INFO - Found code_base: <app.utils.kg_build.knowledge.KnowledgeCodeBase object at 0x7f620c99e250>
+2026-03-02 06:30:54,516 - Knowledge - INFO - process ingested knowledge for /app/data/b2c/241506/b252008/vidartemp-241506/frontend/src/components/ui/tabs.jsx
+2026-03-02 06:30:54,735 - Knowledge - INFO - Found code-base-name: https://github.com/kavia-common/vidartemp-241506.git:kavia-main-4560
+2026-03-02 06:30:54,943 - Knowledge - INFO - Found code_base: <app.utils.kg_build.knowledge.KnowledgeCodeBase object at 0x7f620c99e250>
+2026-03-02 06:30:55,123 - Knowledge - INFO - process ingested knowledge for /app/data/b2c/241506/b252008/vidartemp-241506/frontend/src/components/ui/card.jsx
+2026-03-02 06:30:55,305 - Knowledge - INFO - Found code-base-name: https://github.com/kavia-common/vidartemp-241506.git:kavia-main-4560
+2026-03-02 06:30:55,509 - Knowledge - INFO - Found code_base: <app.utils.kg_build.knowledge.KnowledgeCodeBase object at 0x7f620c99e250>
+2026-03-02 06:30:55,714 - Knowledge - INFO - process ingested knowledge for /app/data/b2c/241506/b252008/vidartemp-241506/frontend/src/components/ui/collapsible.jsx
+2026-03-02 06:30:55,929 - Knowledge - INFO - Found code-base-name: https://github.com/kavia-common/vidartemp-241506.git:kavia-main-4560
+2026-03-02 06:30:56,146 - Knowledge - INFO - Found code_base: <app.utils.kg_build.knowledge.KnowledgeCodeBase object at 0x7f620c99e250>
+2026-03-02 06:30:56,343 - Knowledge - INFO - process ingested knowledge for /app/data/b2c/241506/b252008/vidartemp-241506/frontend/plugins/visual-edits/dev-server-setup.js
+2026-03-02 06:30:56,549 - Knowledge - INFO - Found code-base-name: https://github.com/kavia-common/vidartemp-241506.git:kavia-main-4560
+2026-03-02 06:30:56,755 - Knowledge - INFO - Found code_base: <app.utils.kg_build.knowledge.KnowledgeCodeBase object at 0x7f620c99e250>
+2026-03-02 06:30:56,952 - Knowledge - INFO - process ingested knowledge for /app/data/b2c/241506/b252008/vidartemp-241506/frontend/src/components/ui/menubar.jsx
+2026-03-02 06:30:57,180 - Knowledge - INFO - Found code-base-name: https://github.com/kavia-common/vidartemp-241506.git:kavia-main-4560
+2026-03-02 06:30:57,401 - Knowledge - INFO - Found code_base: <app.utils.kg_build.knowledge.KnowledgeCodeBase object at 0x7f620c99e250>
+2026-03-02 06:30:57,611 - Knowledge - INFO - process ingested knowledge for /app/data/b2c/241506/b252008/vidartemp-241506/frontend/src/index.css
+2026-03-02 06:30:57,824 - Knowledge - INFO - Found code-base-name: https://github.com/kavia-common/vidartemp-241506.git:kavia-main-4560
+2026-03-02 06:30:58,030 - Knowledge - INFO - Found code_base: <app.utils.kg_build.knowledge.KnowledgeCodeBase object at 0x7f620c99e250>
+2026-03-02 06:30:58,220 - Knowledge - INFO - process ingested knowledge for /app/data/b2c/241506/b252008/vidartemp-241506/frontend/src/components/ui/toaster.jsx
+2026-03-02 06:30:58,421 - Knowledge - INFO - Found code-base-name: https://github.com/kavia-common/vidartemp-241506.git:kavia-main-4560
+2026-03-02 06:30:58,629 - Knowledge - INFO - Found code_base: <app.utils.kg_build.knowledge.KnowledgeCodeBase object at 0x7f620c99e250>
+2026-03-02 06:30:58,824 - Knowledge - INFO - process ingested knowledge for /app/data/b2c/241506/b252008/vidartemp-241506/frontend/postcss.config.js
+2026-03-02 06:30:59,018 - Knowledge - INFO - Found code-base-name: https://github.com/kavia-common/vidartemp-241506.git:kavia-main-4560
+2026-03-02 06:30:59,176 - Knowledge - INFO - Found code_base: <app.utils.kg_build.knowledge.KnowledgeCodeBase object at 0x7f620c99e250>
+2026-03-02 06:30:59,363 - Knowledge - INFO - process ingested knowledge for /app/data/b2c/241506/b252008/vidartemp-241506/frontend/src/components/ui/toggle.jsx
+2026-03-02 06:30:59,598 - Knowledge - INFO - Found code-base-name: https://github.com/kavia-common/vidartemp-241506.git:kavia-main-4560
+2026-03-02 06:30:59,788 - Knowledge - INFO - Found code_base: <app.utils.kg_build.knowledge.KnowledgeCodeBase object at 0x7f620c99e250>
+2026-03-02 06:30:59,953 - Knowledge - INFO - process ingested knowledge for /app/data/b2c/241506/b252008/vidartemp-241506/frontend/src/components/ui/switch.jsx
+2026-03-02 06:31:00,148 - Knowledge - INFO - Found code-base-name: https://github.com/kavia-common/vidartemp-241506.git:kavia-main-4560
+2026-03-02 06:31:00,354 - Knowledge - INFO - Found code_base: <app.utils.kg_build.knowledge.KnowledgeCodeBase object at 0x7f620c99e250>
+2026-03-02 06:31:00,561 - Knowledge - INFO - process ingested knowledge for /app/data/b2c/241506/b252008/vidartemp-241506/frontend/src/components/ui/accordion.jsx
+2026-03-02 06:31:00,783 - Knowledge - INFO - Found code-base-name: https://github.com/kavia-common/vidartemp-241506.git:kavia-main-4560
+2026-03-02 06:31:00,974 - Knowledge - INFO - Found code_base: <app.utils.kg_build.knowledge.KnowledgeCodeBase object at 0x7f620c99e250>
+2026-03-02 06:31:01,164 - Knowledge - INFO - process ingested knowledge for /app/data/b2c/241506/b252008/vidartemp-241506/frontend/src/components/ui/navigation-menu.jsx
+2026-03-02 06:31:01,342 - Knowledge - INFO - Found code-base-name: https://github.com/kavia-common/vidartemp-241506.git:kavia-main-4560
+2026-03-02 06:31:01,520 - Knowledge - INFO - Found code_base: <app.utils.kg_build.knowledge.KnowledgeCodeBase object at 0x7f620c99e250>
+2026-03-02 06:31:01,711 - Knowledge - INFO - process ingested knowledge for /app/data/b2c/241506/b252008/vidartemp-241506/frontend/src/components/ui/alert.jsx
+2026-03-02 06:31:01,937 - Knowledge - INFO - Found code-base-name: https://github.com/kavia-common/vidartemp-241506.git:kavia-main-4560
+2026-03-02 06:31:02,173 - Knowledge - INFO - Found code_base: <app.utils.kg_build.knowledge.KnowledgeCodeBase object at 0x7f620c99e250>
+2026-03-02 06:31:02,392 - Knowledge - INFO - process ingested knowledge for /app/data/b2c/241506/b252008/vidartemp-241506/frontend/src/components/ui/table.jsx
+2026-03-02 06:31:02,579 - Knowledge - INFO - Found code-base-name: https://github.com/kavia-common/vidartemp-241506.git:kavia-main-4560
+2026-03-02 06:31:02,833 - Knowledge - INFO - Found code_base: <app.utils.kg_build.knowledge.KnowledgeCodeBase object at 0x7f620c99e250>
+2026-03-02 06:31:03,059 - Knowledge - INFO - process ingested knowledge for /app/data/b2c/241506/b252008/vidartemp-241506/frontend/src/components/ui/dialog.jsx
+2026-03-02 06:31:03,267 - Knowledge - INFO - Found code-base-name: https://github.com/kavia-common/vidartemp-241506.git:kavia-main-4560
+2026-03-02 06:31:03,470 - Knowledge - INFO - Found code_base: <app.utils.kg_build.knowledge.KnowledgeCodeBase object at 0x7f620c99e250>
+2026-03-02 06:31:03,648 - Knowledge - INFO - process ingested knowledge for /app/data/b2c/241506/b252008/vidartemp-241506/frontend/package.json
+2026-03-02 06:31:03,873 - Knowledge - INFO - Found code-base-name: https://github.com/kavia-common/vidartemp-241506.git:kavia-main-4560
+2026-03-02 06:31:04,094 - Knowledge - INFO - Found code_base: <app.utils.kg_build.knowledge.KnowledgeCodeBase object at 0x7f620c99e250>
+2026-03-02 06:31:04,283 - Knowledge - INFO - process ingested knowledge for /app/data/b2c/241506/b252008/vidartemp-241506/frontend/src/components/ui/input-otp.jsx
+2026-03-02 06:31:04,471 - Knowledge - INFO - Found code-base-name: https://github.com/kavia-common/vidartemp-241506.git:kavia-main-4560
+2026-03-02 06:31:04,705 - Knowledge - INFO - Found code_base: <app.utils.kg_build.knowledge.KnowledgeCodeBase object at 0x7f620c99e250>
+2026-03-02 06:31:04,920 - Knowledge - INFO - process ingested knowledge for /app/data/b2c/241506/b252008/vidartemp-241506/frontend/src/views/EstateOverview.js
+2026-03-02 06:31:05,135 - Knowledge - INFO - Found code-base-name: https://github.com/kavia-common/vidartemp-241506.git:kavia-main-4560
+2026-03-02 06:31:05,354 - Knowledge - INFO - Found code_base: <app.utils.kg_build.knowledge.KnowledgeCodeBase object at 0x7f620c99e250>
+2026-03-02 06:31:05,537 - Knowledge - INFO - process ingested knowledge for /app/data/b2c/241506/b252008/vidartemp-241506/frontend/src/components/ui/input.jsx
+2026-03-02 06:31:05,780 - Knowledge - INFO - Found code-base-name: https://github.com/kavia-common/vidartemp-241506.git:kavia-main-4560
+2026-03-02 06:31:05,939 - Knowledge - INFO - Found code_base: <app.utils.kg_build.knowledge.KnowledgeCodeBase object at 0x7f620c99e250>
+2026-03-02 06:31:06,104 - Knowledge - INFO - process ingested knowledge for /app/data/b2c/241506/b252008/vidartemp-241506/frontend/src/components/ui/select.jsx
+2026-03-02 06:31:06,318 - Knowledge - INFO - Found code-base-name: https://github.com/kavia-common/vidartemp-241506.git:kavia-main-4560
+2026-03-02 06:31:06,510 - Knowledge - INFO - Found code_base: <app.utils.kg_build.knowledge.KnowledgeCodeBase object at 0x7f620c99e250>
+2026-03-02 06:31:06,698 - Knowledge - INFO - process ingested knowledge for /app/data/b2c/241506/b252008/vidartemp-241506/frontend/src/components/ui/label.jsx
+2026-03-02 06:31:06,889 - Knowledge - INFO - Found code-base-name: https://github.com/kavia-common/vidartemp-241506.git:kavia-main-4560
+2026-03-02 06:31:07,100 - Knowledge - INFO - Found code_base: <app.utils.kg_build.knowledge.KnowledgeCodeBase object at 0x7f620c99e250>
+2026-03-02 06:31:07,271 - Knowledge - INFO - process ingested knowledge for /app/data/b2c/241506/b252008/vidartemp-241506/frontend/src/components/ui/toggle-group.jsx
+2026-03-02 06:31:07,461 - Knowledge - INFO - Found code-base-name: https://github.com/kavia-common/vidartemp-241506.git:kavia-main-4560
+2026-03-02 06:31:07,686 - Knowledge - INFO - Found code_base: <app.utils.kg_build.knowledge.KnowledgeCodeBase object at 0x7f620c99e250>
+2026-03-02 06:31:07,861 - Knowledge - INFO - process ingested knowledge for /app/data/b2c/241506/b252008/vidartemp-241506/frontend/src/components/ui/button.jsx
+2026-03-02 06:31:08,046 - Knowledge - INFO - Found code-base-name: https://github.com/kavia-common/vidartemp-241506.git:kavia-main-4560
+2026-03-02 06:31:08,240 - Knowledge - INFO - Found code_base: <app.utils.kg_build.knowledge.KnowledgeCodeBase object at 0x7f620c99e250>
+2026-03-02 06:31:08,440 - Knowledge - INFO - process ingested knowledge for /app/data/b2c/241506/b252008/vidartemp-241506/frontend/DEPENDENCY_INVESTIGATION_CRACO.md
+2026-03-02 06:31:08,669 - Knowledge - INFO - Found code-base-name: https://github.com/kavia-common/vidartemp-241506.git:kavia-main-4560
+2026-03-02 06:31:08,849 - Knowledge - INFO - Found code_base: <app.utils.kg_build.knowledge.KnowledgeCodeBase object at 0x7f620c99e250>
+2026-03-02 06:31:09,031 - Knowledge - INFO - process ingested knowledge for /app/data/b2c/241506/b252008/vidartemp-241506/frontend/src/components/ui/aspect-ratio.jsx
+2026-03-02 06:31:09,221 - Knowledge - INFO - Found code-base-name: https://github.com/kavia-common/vidartemp-241506.git:kavia-main-4560
+2026-03-02 06:31:09,441 - Knowledge - INFO - Found code_base: <app.utils.kg_build.knowledge.KnowledgeCodeBase object at 0x7f620c99e250>
+2026-03-02 06:31:09,610 - Knowledge - INFO - process ingested knowledge for /app/data/b2c/241506/b252008/vidartemp-241506/frontend/plugins/health-check/webpack-health-plugin.js
+2026-03-02 06:31:09,799 - Knowledge - INFO - Found code-base-name: https://github.com/kavia-common/vidartemp-241506.git:kavia-main-4560
+2026-03-02 06:31:09,966 - Knowledge - INFO - Found code_base: <app.utils.kg_build.knowledge.KnowledgeCodeBase object at 0x7f620c99e250>
+2026-03-02 06:31:10,164 - Knowledge - INFO - process ingested knowledge for /app/data/b2c/241506/b252008/vidartemp-241506/frontend/src/components/ui/form.jsx
+2026-03-02 06:31:10,350 - Knowledge - INFO - Loaded 76 files from persisted knowledge
+2026-03-02 06:31:10,538 - Knowledge - INFO - load persisted knowledge: end
+2026-03-02 06:31:10,749 - Knowledge - INFO - Redis support added with prefix knowledge:b252008:
+2026-03-02 06:31:11,020 - Knowledge - INFO - Starting knowledge initialization for ID: rbZ1Cz-b252008
+2026-03-02 06:31:11,206 - Knowledge - INFO - 🔍 Checking Redis for build_id: b252008
+2026-03-02 06:31:11,403 - Knowledge - INFO - 🔍 Full session ID: rbZ1Cz-b252008
+2026-03-02 06:31:11,614 - Knowledge - INFO - 🔍 Redis prefix will be: knowledge:b252008:
+2026-03-02 06:31:11,862 - Knowledge - INFO - 🔍 Using attached load_from_redis() method
+2026-03-02 06:31:12,066 - Knowledge - INFO - 🔍 Attempting to load knowledge from Redis...
+2026-03-02 06:31:12,774 - Knowledge - INFO - 🔍 Using derived instance_id for Redis lookup: b252008
+2026-03-02 06:31:12,971 - Knowledge - INFO - ✅ Redis cache found! Loading knowledge...
+2026-03-02 06:31:13,175 - Knowledge - INFO - ✅ Successfully loaded from Redis: 76 files
+2026-03-02 06:31:13,394 - Knowledge - INFO - ✅ Redis load complete: 76 files in 1.53s
+2026-03-02 06:31:13,583 - Knowledge - INFO - ⚡ Total Redis path: 1.53s (vs ~300s from disk)
+2026-03-02 06:31:13,766 - Knowledge - INFO - Saving knowledge to Redis...
+2026-03-02 06:31:14,077 - Knowledge - INFO - Knowledge saved to Redis successfully
