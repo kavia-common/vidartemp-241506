@@ -5,9 +5,11 @@ import {
 } from "lucide-react";
 import api from "../api/client";
 import SovereigntyBadge from "../components/SovereigntyBadge";
+import GovernanceScoreBadge from "../components/GovernanceScoreBadge";
 import { getRiskProfileForSystem } from "../lib/getRiskProfileForSystem";
 import { getGovernanceDriftStatus } from "../lib/getGovernanceDriftStatus";
 import { getLayerConsistencyReport } from "../lib/getLayerConsistencyReport";
+import { getGovernanceScoreForSystem } from "../lib/getGovernanceScoreForSystem";
 
 /* ── small helpers ── */
 const OutcomeBadge = ({ outcome }) => {
@@ -327,8 +329,16 @@ const TABS = [
   { id: "evals",  label: "Evaluations" },
 ];
 
-function SystemDetail({ system, onClose }) {
+function SystemDetail({ system, onClose, layerIsConsistent }) {
   const [tab, setTab] = useState("risk");
+
+  const riskProfile = useMemo(() => getRiskProfileForSystem(system), [system]);
+  const govScore = useMemo(() => {
+    return getGovernanceScoreForSystem(
+      { ...system, currentRiskProfile: riskProfile },
+      { layerIsConsistent }
+    );
+  }, [system, riskProfile, layerIsConsistent]);
 
   return (
     <div className="flex flex-col h-full">
@@ -339,9 +349,10 @@ function SystemDetail({ system, onClose }) {
             <Server size={14} className="text-indigo-400" />
             <span className="text-sm font-semibold text-slate-100 font-mono">{system.system_name}</span>
           </div>
-          <div className="flex items-center gap-2 mt-1.5">
+          <div className="flex items-center gap-2 mt-1.5 flex-wrap">
             <span className="text-[10px] text-slate-600 font-mono">L{system.layer_id}</span>
             <SovereigntyBadge level={system.sovereignty_level} />
+            <GovernanceScoreBadge score={govScore.score} grade={govScore.grade} />
             {system.zero_cloud_required && (
               <span className="text-[10px] text-indigo-400 border border-indigo-500/30 bg-indigo-500/10 px-1.5 py-0.5 rounded font-mono">ZERO-CLOUD</span>
             )}
@@ -429,7 +440,7 @@ function GovernanceDriftBadge({ status }) {
   );
 }
 
-function SystemListItem({ system, isSelected, onSelect }) {
+function SystemListItem({ system, isSelected, onSelect, layerIsConsistent }) {
   const riskProfile = useMemo(() => getRiskProfileForSystem(system), [system]);
 
   // Per requirements: compute drift status using useMemo per system row.
@@ -437,6 +448,13 @@ function SystemListItem({ system, isSelected, onSelect }) {
     // Pass the derived current profile without mutating the original system object.
     return getGovernanceDriftStatus({ ...system, currentRiskProfile: riskProfile });
   }, [system, riskProfile]);
+
+  const govScore = useMemo(() => {
+    return getGovernanceScoreForSystem(
+      { ...system, currentRiskProfile: riskProfile },
+      { layerIsConsistent }
+    );
+  }, [system, riskProfile, layerIsConsistent]);
 
   return (
     <button
@@ -480,7 +498,11 @@ function SystemListItem({ system, isSelected, onSelect }) {
               <span className="text-[10px] text-slate-600 font-mono uppercase tracking-wide">
                 Risk Profile
               </span>
-              <GovernanceDriftBadge status={drift.status} />
+
+              <div className="flex items-center gap-1.5">
+                <GovernanceScoreBadge score={govScore.score} grade={govScore.grade} />
+                <GovernanceDriftBadge status={drift.status} />
+              </div>
             </div>
 
             <div className="mt-1.5 flex flex-wrap gap-1.5">
@@ -530,6 +552,14 @@ export default function SystemExplorer() {
     return getLayerConsistencyReport(systems);
   }, [systems]);
 
+  const layerConsistencyById = useMemo(() => {
+    const m = new Map();
+    for (const l of layerConsistencyReport.layers) {
+      m.set(l.layerId, l.isConsistent);
+    }
+    return m;
+  }, [layerConsistencyReport]);
+
   const ConsistencyBadge = ({ consistent }) => {
     const cls = consistent
       ? "bg-emerald-500/15 text-emerald-300 border-emerald-500/30"
@@ -543,6 +573,13 @@ export default function SystemExplorer() {
       </span>
     );
   };
+
+  const selectedLayerKey =
+    selected?.layer_id === null || selected?.layer_id === undefined || selected?.layer_id === ""
+      ? "unknown"
+      : String(selected?.layer_id);
+
+  const selectedLayerIsConsistent = selected ? (layerConsistencyById.get(selectedLayerKey) ?? null) : null;
 
   return (
     <div className="flex h-full">
@@ -605,14 +642,24 @@ export default function SystemExplorer() {
         )}
 
         <div className="flex-1 overflow-y-auto">
-          {systems.map((s) => (
-            <SystemListItem
-              key={s.system_id}
-              system={s}
-              isSelected={selected?.system_id === s.system_id}
-              onSelect={setSelected}
-            />
-          ))}
+          {systems.map((s) => {
+            const layerKey =
+              s?.layer_id === null || s?.layer_id === undefined || s?.layer_id === ""
+                ? "unknown"
+                : String(s?.layer_id);
+
+            const layerIsConsistent = layerConsistencyById.get(layerKey) ?? null;
+
+            return (
+              <SystemListItem
+                key={s.system_id}
+                system={s}
+                layerIsConsistent={layerIsConsistent}
+                isSelected={selected?.system_id === s.system_id}
+                onSelect={setSelected}
+              />
+            );
+          })}
           {!loading && systems.length === 0 && (
             <p className="px-4 py-6 text-xs text-slate-600 text-center">No systems registered</p>
           )}
@@ -628,7 +675,11 @@ export default function SystemExplorer() {
       {/* Detail panel */}
       <div className="flex-1 min-w-0 overflow-hidden">
         {selected ? (
-          <SystemDetail system={selected} onClose={() => setSelected(null)} />
+          <SystemDetail
+            system={selected}
+            layerIsConsistent={selectedLayerIsConsistent}
+            onClose={() => setSelected(null)}
+          />
         ) : (
           <div className="flex flex-col items-center justify-center h-full text-center px-8">
             <Server size={32} className="text-slate-700 mb-3" />
