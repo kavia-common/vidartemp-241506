@@ -43,16 +43,16 @@
     "react-hook-form": "^7.56.2",
     "react-resizable-panels": "^3.0.1",
     "react-router-dom": "^7.5.1",
-    "react-scripts": "5.0.1",
     "sonner": "^2.0.3",
     "tailwind-merge": "^3.2.0",
     "tailwindcss-animate": "^1.0.7",
     "vaul": "^1.1.2"
   },
   "scripts": {
-    "start": "craco start",
-    "build": "craco build",
-    "test": "craco test"
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "jest"
   },
   "browserslist": {
     "production": [
@@ -67,19 +67,23 @@
     ]
   },
   "devDependencies": {
+    "@babel/core": "^7.29.1",
     "@babel/generator": "^7.29.1",
     "@babel/parser": "^7.29.0",
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
+    "@babel/preset-env": "^7.29.1",
+    "@babel/preset-react": "^7.29.1",
     "@babel/preset-typescript": "^7.28.5",
     "@babel/traverse": "^7.29.0",
     "@babel/types": "^7.29.0",
-    "@craco/craco": "^7.1.0",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
     "@testing-library/user-event": "^14.6.1",
+    "@vitejs/plugin-react": "^4.7.0",
     "ajv": "^8.18.0",
     "ajv-keywords": "^5.1.0",
     "autoprefixer": "^10.4.20",
+    "babel-jest": "^30.0.5",
     "dotenv": "^17.3.1",
     "eslint": "^8.57.1",
     "eslint-plugin-import": "2.31.0",
@@ -88,8 +92,12 @@
     "eslint-plugin-react-hooks": "5.2.0",
     "eslint-plugin-testing-library": "^5.11.1",
     "express": "^4.21.2",
+    "jest": "^30.0.5",
+    "jest-environment-jsdom": "^30.0.5",
     "postcss": "^8.4.49",
-    "tailwindcss": "^3.4.17"
+    "tailwindcss": "^3.4.17",
+    "vite": "^7.0.0",
+    "vite-plugin-svgr": "^4.3.0"
   },
   "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"
 }
