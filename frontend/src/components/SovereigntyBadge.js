@@ -12,7 +12,7 @@ export default function SovereigntyBadge({ level }) {
   const cls = COLOURS[level] ?? "bg-slate-500/15 text-slate-300 border-slate-500/30";
   return (
     <span
-      className={`inline-flex items-center px-2 py-0.5 rounded border text-[10px] font-mono font-semibold tracking-wide ${cls}`}
+      className={`inline-flex h-5 items-center rounded-md border px-2 text-[10px] font-mono font-semibold leading-none whitespace-nowrap uppercase tracking-wider ${cls}`}
     >
       {level ?? "—"}
     </span>

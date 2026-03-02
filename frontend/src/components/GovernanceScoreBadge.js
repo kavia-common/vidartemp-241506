@@ -41,11 +41,11 @@ export default function GovernanceScoreBadge({ score, grade, className }) {
   return (
     <span
       title={title}
-      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded border text-[10px] font-mono font-semibold ${cls} ${
+      className={`inline-flex h-5 items-center gap-1 rounded-md border px-2 text-[10px] font-mono font-semibold leading-none whitespace-nowrap ${cls} ${
         className ?? ""
       }`}
     >
-      <span className="uppercase tracking-wide">{label}</span>
+      <span className="uppercase tracking-wider">{label}</span>
       {grade ? <span className="text-[10px] opacity-80">({grade})</span> : null}
     </span>
   );

@@ -400,12 +400,12 @@ function SeverityCountBadge({ label, value, tone }) {
 
   return (
     <span
-      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded border text-[10px] font-mono tabular-nums ${
+      className={`inline-flex h-5 items-center gap-1 rounded-md border px-2 text-[10px] font-mono font-semibold tabular-nums leading-none whitespace-nowrap ${
         toneMap[tone] ?? toneMap.slate
       }`}
     >
-      <span className="uppercase tracking-wide">{label}</span>
-      <span className="font-semibold">{value}</span>
+      <span className="uppercase tracking-wider">{label}</span>
+      <span>{value}</span>
     </span>
   );
 }
@@ -422,7 +422,7 @@ function GovernanceDriftBadge({ status }) {
 
   return (
     <span
-      className={`inline-flex px-2 py-0.5 rounded border text-[10px] font-mono font-semibold ${
+      className={`inline-flex h-5 items-center rounded-md border px-2 text-[10px] font-mono font-semibold leading-none whitespace-nowrap ${
         map[status] ?? map["no-baseline"]
       }`}
     >
@@ -450,7 +450,7 @@ function SystemListItem({ system, isSelected, onSelect }) {
     <button
       key={system.system_id}
       onClick={() => onSelect(system)}
-      className={`w-full text-left px-4 py-3 border-b border-slate-800/50 transition-colors group ${
+      className={`w-full text-left px-4 py-2.5 border-b border-slate-800/50 transition-colors group ${
         isSelected
           ? "bg-indigo-600/10 border-l-2 border-l-indigo-500"
           : "hover:bg-slate-800/40 border-l-2 border-l-transparent"
@@ -459,43 +459,47 @@ function SystemListItem({ system, isSelected, onSelect }) {
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
           <p
-            className={`text-xs font-mono truncate ${
-              isSelected ? "text-indigo-200" : "text-slate-300"
+            className={`text-[13px] leading-snug font-mono font-semibold truncate ${
+              isSelected ? "text-indigo-200" : "text-slate-200"
             }`}
           >
             {system.system_name}
           </p>
 
-          <div className="flex items-center gap-2 mt-1 flex-wrap">
-            <span className="text-[10px] text-slate-600 font-mono">L{system.layer_id}</span>
+          <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
+            <span className="text-[10px] text-slate-500 font-mono">L{system.layer_id}</span>
             <SovereigntyBadge level={system.sovereignty_level} />
-            {!system.is_active && <span className="text-[10px] text-slate-600">inactive</span>}
+            {!system.is_active && (
+              <span className="inline-flex h-5 items-center rounded-md border border-slate-700/70 bg-slate-800/30 px-2 text-[10px] font-mono font-semibold leading-none text-slate-500 uppercase tracking-wider">
+                Inactive
+              </span>
+            )}
           </div>
 
           {/* Rule Trace (summary) */}
-          <div className="mt-2 flex items-center justify-between">
-            <span className="text-[10px] text-slate-600 font-mono uppercase tracking-wide">
+          <div className="mt-2.5 flex items-center justify-between">
+            <span className="text-[9px] text-slate-600 font-mono uppercase tracking-widest">
               Rule Trace
             </span>
-            <span className="text-[10px] text-slate-600 font-mono tabular-nums">
+            <span className="text-[10px] text-slate-500 font-mono tabular-nums">
               {riskProfile.totalRules} rule{riskProfile.totalRules !== 1 ? "s" : ""}
             </span>
           </div>
 
           {/* Risk Profile (metadata-derived only) */}
-          <div className="mt-2">
+          <div className="mt-2.5">
             <div className="flex items-center justify-between gap-2">
-              <span className="text-[10px] text-slate-600 font-mono uppercase tracking-wide">
+              <span className="text-[9px] text-slate-600 font-mono uppercase tracking-widest">
                 Risk Profile
               </span>
 
-              <div className="flex items-center gap-1.5">
+              <div className="flex items-center gap-1">
                 <GovernanceScoreBadge score={governanceScore} />
                 <GovernanceDriftBadge status={drift.status} />
               </div>
             </div>
 
-            <div className="mt-1.5 flex flex-wrap gap-1.5">
+            <div className="mt-2 flex flex-wrap gap-1.5">
               <SeverityCountBadge label="Total" value={riskProfile.totalRules} tone="slate" />
               <SeverityCountBadge label="Critical" value={riskProfile.criticalCount} tone="red" />
               <SeverityCountBadge label="Warning" value={riskProfile.warningCount} tone="amber" />
@@ -506,7 +510,7 @@ function SystemListItem({ system, isSelected, onSelect }) {
 
         <ChevronRight
           size={13}
-          className={`flex-shrink-0 mt-0.5 transition-colors ${
+          className={`flex-shrink-0 self-center transition-colors ${
             isSelected ? "text-indigo-400" : "text-slate-700 group-hover:text-slate-500"
           }`}
         />
