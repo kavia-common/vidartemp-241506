@@ -7,7 +7,7 @@ import type { Outcome } from "@/engine/types";
 /**
  * GovernanceTraceView
  *
- * Displays evaluation history from the backend /api/evaluation endpoint.
+ * Displays evaluation history from the backend /api/evaluation-history endpoint.
  * This view consumes backend evaluation results and does not perform any
  * frontend evaluation logic.
  */
@@ -50,6 +50,27 @@ function assertEvaluationHistoryResponse(
     if (typeof ev.outcome !== "string" || ev.outcome.length === 0) {
       throw new Error(`Invalid evaluation event at items[${idx}]: missing 'outcome'.`);
     }
+    if (typeof ev.system_id !== "string" || ev.system_id.length === 0) {
+      throw new Error(`Invalid evaluation event at items[${idx}]: missing 'system_id'.`);
+    }
+    if (typeof ev.system_name !== "string" || ev.system_name.length === 0) {
+      throw new Error(`Invalid evaluation event at items[${idx}]: missing 'system_name'.`);
+    }
+    if (!Array.isArray(ev.rule_codes_triggered)) {
+      throw new Error(
+        `Invalid evaluation event at items[${idx}]: 'rule_codes_triggered' must be an array.`,
+      );
+    }
+    if (typeof ev.critical_count !== "number") {
+      throw new Error(
+        `Invalid evaluation event at items[${idx}]: 'critical_count' must be a number.`,
+      );
+    }
+    if (typeof ev.warning_count !== "number") {
+      throw new Error(
+        `Invalid evaluation event at items[${idx}]: 'warning_count' must be a number.`,
+      );
+    }
 
     if (
       ev.triggered_by !== undefined &&
@@ -59,27 +80,6 @@ function assertEvaluationHistoryResponse(
       throw new Error(
         `Invalid evaluation event at items[${idx}]: 'triggered_by' must be string|null.`,
       );
-    }
-
-    if (ev.violations !== undefined && ev.violations !== null) {
-      if (!Array.isArray(ev.violations)) {
-        throw new Error(
-          `Invalid evaluation event at items[${idx}]: 'violations' must be an array|null.`,
-        );
-      }
-      ev.violations.forEach((v, vIdx) => {
-        if (!v || typeof v !== "object") {
-          throw new Error(
-            `Invalid evaluation event at items[${idx}].violations[${vIdx}]: expected an object.`,
-          );
-        }
-        const vv = v as Record<string, unknown>;
-        if (typeof vv.rule_code !== "string" || vv.rule_code.length === 0) {
-          throw new Error(
-            `Invalid evaluation event at items[${idx}].violations[${vIdx}]: missing 'rule_code'.`,
-          );
-        }
-      });
     }
   });
 }
@@ -91,7 +91,7 @@ export default function GovernanceTraceView() {
   const [page] = useState<number>(1);
   const [pageSize] = useState<number>(50);
 
-  const endpoint = useMemo(() => "/api/evaluation", []);
+  const endpoint = useMemo(() => "/api/evaluation-history", []);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -171,9 +171,12 @@ export default function GovernanceTraceView() {
               const triggeredAt = ev.triggered_at;
               const eventType = ev.event_type;
               const outcome: Outcome = ev.outcome;
+              const systemId = ev.system_id;
+              const systemName = ev.system_name;
               const triggeredBy = ev.triggered_by ?? "—";
-              const violations = ev.violations ?? [];
-              const violationCount = violations.length;
+              const ruleCodes = ev.rule_codes_triggered ?? [];
+              const criticalCount = ev.critical_count ?? 0;
+              const warningCount = ev.warning_count ?? 0;
 
               let outcomeColor = "text-slate-400";
               if (outcome === "ALLOW") outcomeColor = "text-green-400";
@@ -187,31 +190,37 @@ export default function GovernanceTraceView() {
                       <div className="flex items-center gap-3">
                         <p className="text-xs font-mono text-slate-200">{eventType}</p>
                         <span className={`text-xs font-semibold ${outcomeColor}`}>{outcome}</span>
-                        {violationCount > 0 && (
-                          <span className="text-[10px] text-slate-500">
-                            {violationCount} violation{violationCount !== 1 ? "s" : ""}
+                        {criticalCount > 0 && (
+                          <span className="text-[10px] px-1.5 py-0.5 bg-red-500/20 text-red-400 border border-red-500/30 rounded">
+                            {criticalCount} critical
+                          </span>
+                        )}
+                        {warningCount > 0 && (
+                          <span className="text-[10px] px-1.5 py-0.5 bg-yellow-500/20 text-yellow-400 border border-yellow-500/30 rounded">
+                            {warningCount} warning
                           </span>
                         )}
                       </div>
 
                       <div className="flex items-center gap-3 mt-1 text-[10px] text-slate-600">
                         <span>Event: {String(eventId).substring(0, 8)}</span>
+                        <span>System: {systemName}</span>
                         <span>By: {triggeredBy}</span>
                       </div>
 
-                      {violationCount > 0 && (
+                      {ruleCodes.length > 0 && (
                         <div className="mt-2 flex flex-wrap gap-1">
-                          {violations.slice(0, 5).map((v, vIdx) => (
+                          {ruleCodes.slice(0, 5).map((code, cIdx) => (
                             <span
-                              key={vIdx}
+                              key={cIdx}
                               className="text-[9px] px-1.5 py-0.5 bg-slate-800/50 border border-slate-700 rounded font-mono text-slate-400"
                             >
-                              {v.rule_code}
+                              {code}
                             </span>
                           ))}
-                          {violationCount > 5 && (
+                          {ruleCodes.length > 5 && (
                             <span className="text-[9px] text-slate-600">
-                              +{violationCount - 5} more
+                              +{ruleCodes.length - 5} more
                             </span>
                           )}
                         </div>

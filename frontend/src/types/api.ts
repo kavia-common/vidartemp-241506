@@ -113,18 +113,19 @@ export interface ApiSystemDependencyMap {
  *
  * Strictly modeled to match only what GovernanceTraceView consumes.
  */
-export interface ApiViolation {
-  rule_code: string;
-}
-
 export interface ApiEvaluationEvent {
   event_id: string;
   triggered_at: ApiIsoDateTime;
   event_type: string;
   outcome: Outcome;
 
+  system_id: string;
+  system_name: string;
+  rule_codes_triggered: string[];
+  critical_count: number;
+  warning_count: number;
+
   triggered_by?: string | null;
-  violations?: ApiViolation[] | null;
 }
 
 export type ApiEvaluationHistoryResponse = ApiPaginatedResponse<ApiEvaluationEvent>;
