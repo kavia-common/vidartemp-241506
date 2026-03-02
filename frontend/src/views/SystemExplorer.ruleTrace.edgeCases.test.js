@@ -14,6 +14,10 @@ jest.mock("../api/client", () => {
   };
 });
 
+import api from "../api/client";
+import SystemExplorer from "./SystemExplorer";
+import * as ruleRegistry from "../engine/ruleRegistry";
+
 /**
  * Extract all ruleCode strings rendered inside a given SystemListItem wrapper.
  *
@@ -40,59 +44,42 @@ function getSystemRowWrapper(systemName) {
   return wrapper;
 }
 
-/**
- * Build a minimal mock ruleRegistry module that is compatible with ruleSelectors + SystemExplorer.
- *
- * @param {Array<object>} entries
- * @returns {any}
- */
-function buildMockRuleRegistryModule(entries) {
-  const byCode = Object.fromEntries(entries.map((e) => [e.ruleCode, e]));
-  const frozenList = Object.freeze(entries.slice());
+describe("SystemExplorer Rule Trace edge cases (spyOn registry)", () => {
+  afterEach(() => {
+    // Restore spyOn wrappers to keep tests isolated without resetting modules.
+    jest.restoreAllMocks();
 
-  return {
-    __esModule: true,
-    POLICY_VERSION: "test-policy",
-    RULE_REGISTRY: byCode,
-    RULE_REGISTRY_BY_CODE: byCode,
-    getRuleMetadata: (ruleCode) => byCode[ruleCode],
-    listRuleMetadata: () => frozenList,
-  };
-}
+    // Ensure the API mock has no cross-test leakage.
+    api.get.mockReset();
+  });
 
-describe("SystemExplorer Rule Trace edge cases (mocked registry)", () => {
   test("rule with multiple targetLayers appears for all matching layers and not for non-matching layers", async () => {
-    jest.resetModules();
-
     // Create a controlled registry:
     // - MULTI-001 applies to layers 1 and 2
     // - L2-001 applies only to layer 2
     // - STR-001 applies to layer 1 but encodes its layer reference as a *string* ("1")
-    jest.doMock("../engine/ruleRegistry", () =>
-      buildMockRuleRegistryModule([
-        {
-          ruleCode: "L2-001",
-          description: "Layer 2 only",
-          targetLayers: [2],
-        },
-        {
-          ruleCode: "MULTI-001",
-          description: "Multi-layer rule",
-          targetLayers: [1, 2],
-        },
-        {
-          ruleCode: "STR-001",
-          description: "String layer targeting",
-          targetLayers: ["1"],
-        },
-      ])
-    );
+    const entries = [
+      {
+        ruleCode: "L2-001",
+        description: "Layer 2 only",
+        targetLayers: [2],
+      },
+      {
+        ruleCode: "MULTI-001",
+        description: "Multi-layer rule",
+        targetLayers: [1, 2],
+      },
+      {
+        ruleCode: "STR-001",
+        description: "String layer targeting",
+        targetLayers: ["1"],
+      },
+    ];
 
-    // Import after mocking ruleRegistry so ruleSelectors picks it up.
-    // eslint-disable-next-line global-require
-    const SystemExplorer = require("./SystemExplorer").default;
-    // eslint-disable-next-line global-require
-    const api = require("../api/client").default;
+    // Mock ONLY listRuleMetadata() as requested (no module reset/isolation; no dynamic imports).
+    jest
+      .spyOn(ruleRegistry, "listRuleMetadata")
+      .mockReturnValue(Object.freeze(entries.slice()));
 
     const systems = [
       {
@@ -163,23 +150,18 @@ describe("SystemExplorer Rule Trace edge cases (mocked registry)", () => {
   });
 
   test("mixed numeric/string layer_id normalization: system.layer_id=1 matches rule.targetLayers=['1'] deterministically", async () => {
-    jest.resetModules();
+    const entries = [
+      {
+        ruleCode: "STR-001",
+        description: "String layer targeting",
+        // Critical: string target layer
+        targetLayers: ["1"],
+      },
+    ];
 
-    jest.doMock("../engine/ruleRegistry", () =>
-      buildMockRuleRegistryModule([
-        {
-          ruleCode: "STR-001",
-          description: "String layer targeting",
-          // Critical: string target layer
-          targetLayers: ["1"],
-        },
-      ])
-    );
-
-    // eslint-disable-next-line global-require
-    const SystemExplorer = require("./SystemExplorer").default;
-    // eslint-disable-next-line global-require
-    const api = require("../api/client").default;
+    jest
+      .spyOn(ruleRegistry, "listRuleMetadata")
+      .mockReturnValue(Object.freeze(entries.slice()));
 
     const systems = [
       {
