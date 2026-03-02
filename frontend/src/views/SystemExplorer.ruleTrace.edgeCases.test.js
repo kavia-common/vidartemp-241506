@@ -31,6 +31,19 @@ function getRuleCodesFromWrapper(wrapper) {
 }
 
 /**
+ * Extract all ruleCode strings rendered inside a given SystemListItem wrapper.
+ *
+ * Backwards-compatible helper retained for readability in tests; some assertions
+ * still reference this name.
+ *
+ * @param {HTMLElement} wrapper
+ * @returns {string[]}
+ */
+function getRenderedRuleCodes(wrapper) {
+  return getRuleCodesFromWrapper(wrapper);
+}
+
+/**
  * Find the wrapper element for a system row by using the system’s main selection button.
  *
  * @param {string} systemName
