@@ -1,9 +1,6 @@
-import { runDeterministicGovernanceEngine } from "./engine/core";
 import { POLICY_VERSION } from "./policy";
 import type {
   Component,
-  GovernanceEvaluationInput,
-  GovernanceEvaluationResult,
   GovernanceSystem,
   NormalizationWarning,
   Product,
@@ -134,28 +131,24 @@ function normalizeSystem(raw: unknown): GovernanceSystem {
 }
 
 /**
- * Public contract of analyzeGovernance(payload).
- *
- * Note:
- * - The deterministic engine returns GovernanceEvaluationResult.
- * - The analyzer adds analyzer-level metadata/hardening fields:
- *   - normalizationWarnings (always present as an array)
- *   - policyVersion (static policy/rule-set version identifier)
+ * Normalized system payload result.
+ * The analyzer only normalizes data; evaluation is performed by the backend.
  */
-export type AnalyzeGovernanceResult = GovernanceEvaluationResult & {
+export interface NormalizedSystemPayload {
+  system: GovernanceSystem;
+  downstreamSystemIds?: string[];
   normalizationWarnings: NormalizationWarning[];
   policyVersion: string;
-};
+}
 
 /**
- * Analyzer entrypoint: normalize an arbitrary payload into the engine input model
- * and run the deterministic governance engine.
+ * Analyzer entrypoint: normalize an arbitrary payload into a structured system model.
  *
- * This module intentionally does not perform any network calls and can be used
- * in both UI and non-UI logic layers.
+ * This module intentionally does not perform any evaluation or rule execution.
+ * All governance evaluation is performed by the backend.
  */
 // PUBLIC_INTERFACE
-export function analyzeGovernance(payload: unknown): AnalyzeGovernanceResult {
+export function analyzeGovernance(payload: unknown): NormalizedSystemPayload {
   // Support wrapped payloads:
   // If payload.system exists, treat that as the system root.
   const payloadHasSystemWrapper =
@@ -171,18 +164,7 @@ export function analyzeGovernance(payload: unknown): AnalyzeGovernanceResult {
     ? (downstreamRaw.map(asString).filter(Boolean) as string[])
     : undefined;
 
-  const input: GovernanceEvaluationInput = { system, downstreamSystemIds };
-  const engineResult = runDeterministicGovernanceEngine(input);
-
-  // Contract-shape hardening:
-  // - Prefer existing normalizationWarnings if present (defensive; engine does not set it today).
-  // - Otherwise ensure it is an empty array.
-  const engineRecord = engineResult as unknown as Record<string, unknown>;
-  let normalizationWarnings: NormalizationWarning[] = Array.isArray(
-    engineRecord.normalizationWarnings,
-  )
-    ? (engineRecord.normalizationWarnings as NormalizationWarning[])
-    : [];
+  let normalizationWarnings: NormalizationWarning[] = [];
 
   // Defensive safeguard:
   // If after normalization system.sovereigntyLevel and components are both undefined,
@@ -202,11 +184,11 @@ export function analyzeGovernance(payload: unknown): AnalyzeGovernanceResult {
     ];
   }
 
-  // Analyzer-level policy version stamp (must not affect engine semantics).
-  // Return a new object rather than mutating the engine result.
+  // Return normalized data with policy version stamp (no evaluation performed)
   return {
-    ...engineResult,
+    system,
+    downstreamSystemIds,
     normalizationWarnings,
     policyVersion: POLICY_VERSION,
-  } as AnalyzeGovernanceResult;
+  };
 }

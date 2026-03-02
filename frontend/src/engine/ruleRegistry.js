@@ -2,7 +2,9 @@
  * Deterministic, metadata-only rule registry.
  *
  * IMPORTANT:
- * - This file intentionally contains NO evaluation logic and must not change engine semantics.
+ * - This file contains NO evaluation logic whatsoever.
+ * - All rule evaluation is performed by the backend.
+ * - This registry exists solely for displaying rule metadata in the UI.
  * - Deterministic only: stable literals (no Date.now(), Math.random(), etc.).
  * - No runtime mutation: exports are frozen / readonly and must not be mutated by callers.
  */
@@ -17,7 +19,7 @@
 export const POLICY_VERSION = "1.0.0";
 
 /**
- * Rule registry entry (metadata-only).
+ * Rule registry entry (metadata-only for UI display).
  *
  * Required display fields (per specification):
  * - ruleName
@@ -39,13 +41,13 @@ export const POLICY_VERSION = "1.0.0";
  * Legacy (still tolerated by selectors for backwards compatibility, but should not be used):
  * - targets / systems / systemIds / system_names
  *
- * NOTE: This registry is metadata-only. Do not add evaluation logic here.
+ * NOTE: This registry is metadata-only for UI display purposes. The backend performs all evaluation.
  *
  * @typedef {Object} RuleRegistryEntry
  * @property {string} ruleCode - Stable canonical rule code (primary key).
  * @property {string} ruleName - Human-readable rule name (for display).
  * @property {string} ruleType - Display-only classification (e.g., "SOVEREIGNTY", "INTEGRITY").
- * @property {"CRITICAL"|"WARNING"|"INFO"} severity - Display-only severity.
+ * @property {"CRITICAL"|"WARNING"|"INFO"} severity - Display-only severity indicator.
  * @property {string} constraintDescription - Display-only constraint/requirement statement.
  * @property {string} sourceReferenceKey - Stable key for tracing to source docs/policy text.
  * @property {string} domain - Display-only domain grouping (e.g., "governance").
@@ -79,7 +81,7 @@ export const POLICY_VERSION = "1.0.0";
  * - Keep ordering stable (append new keys; do not reorder without intent).
  * - Do not compute fields dynamically.
  *
- * NOTE: This registry is metadata-only. Do not add evaluation logic here.
+ * NOTE: This registry is metadata-only for UI display. All evaluation is backend-authoritative.
  *
  * Targeting:
  * - Rules are associated to systems *only* via `targetLayers` (matched against `system.layer_id`).
@@ -96,7 +98,7 @@ const RULE_REGISTRY_INTERNAL = {
       "Every system must declare a sovereignty level (sovereignty_level) for governance and traceability.",
     sourceReferenceKey: "canonical-governance:SOVR-001",
     domain: "governance",
-    description: "Ensures each system has an explicit sovereignty classification.",
+    description: "Metadata display: Each system requires an explicit sovereignty classification.",
     documentReference: "Canonical Governance Rules",
     introducedInPolicyVersion: "1.0.0",
     targetLayers: [1],
@@ -110,7 +112,7 @@ const RULE_REGISTRY_INTERNAL = {
       "Systems requiring zero-cloud operation must surface the zero_cloud_required indicator for governance review.",
     sourceReferenceKey: "canonical-governance:SOVR-002",
     domain: "governance",
-    description: "Ensures the zero-cloud requirement is traceable in metadata.",
+    description: "Metadata display: Zero-cloud requirement must be traceable in metadata.",
     documentReference: "Canonical Governance Rules",
     introducedInPolicyVersion: "1.0.0",
     targetLayers: [1],
@@ -124,7 +126,7 @@ const RULE_REGISTRY_INTERNAL = {
       "Systems that are not active must be marked as inactive (is_active=false) so governance traces interpret them correctly.",
     sourceReferenceKey: "canonical-governance:SOVR-003",
     domain: "governance",
-    description: "Tracks whether a system is active/inactive for traceability.",
+    description: "Metadata display: Tracks whether a system is active/inactive for traceability.",
     documentReference: "Canonical Governance Rules",
     introducedInPolicyVersion: "1.0.0",
     targetLayers: [1],
@@ -138,7 +140,7 @@ const RULE_REGISTRY_INTERNAL = {
       "Every system should have a layer assignment (layer_id) to support deterministic exploration and trace grouping.",
     sourceReferenceKey: "canonical-governance:SOVR-004",
     domain: "governance",
-    description: "Ensures systems can be grouped and explored by layer.",
+    description: "Metadata display: Systems can be grouped and explored by layer.",
     documentReference: "Canonical Governance Rules",
     introducedInPolicyVersion: "1.0.0",
     targetLayers: [1],
@@ -152,7 +154,7 @@ const RULE_REGISTRY_INTERNAL = {
       "Active components must be attributable to a system to maintain governance trace integrity.",
     sourceReferenceKey: "canonical-governance:COMP-001",
     domain: "governance",
-    description: "Ensures component inventory can be traced to a system boundary.",
+    description: "Metadata display: Component inventory can be traced to a system boundary.",
     documentReference: "Canonical Governance Rules",
     introducedInPolicyVersion: "1.0.0",
     targetLayers: [2],
@@ -166,7 +168,7 @@ const RULE_REGISTRY_INTERNAL = {
       "Systems should expose sufficient interface metadata to build a dependency map (upstream/downstream).",
     sourceReferenceKey: "canonical-governance:CINT-001",
     domain: "governance",
-    description: "Supports deterministic dependency map rendering (metadata-only).",
+    description: "Metadata display: Supports deterministic dependency map rendering.",
     documentReference: "Canonical Governance Rules",
     introducedInPolicyVersion: "1.0.0",
     targetLayers: [3],
@@ -180,7 +182,7 @@ const RULE_REGISTRY_INTERNAL = {
       "Recorded upstream/downstream relationships should be consistent to avoid broken governance traces.",
     sourceReferenceKey: "canonical-governance:CINT-002",
     domain: "governance",
-    description: "Keeps dependency relationships consistent for exploration views.",
+    description: "Metadata display: Keeps dependency relationships consistent for exploration views.",
     documentReference: "Canonical Governance Rules",
     introducedInPolicyVersion: "1.0.0",
     targetLayers: [3],
@@ -194,7 +196,7 @@ const RULE_REGISTRY_INTERNAL = {
       "Components should be linked to a product record when a canonical product is known (metadata-only linkage).",
     sourceReferenceKey: "canonical-governance:CINT-003",
     domain: "governance",
-    description: "Improves product traceability in component inventory views.",
+    description: "Metadata display: Improves product traceability in component inventory views.",
     documentReference: "Canonical Governance Rules",
     introducedInPolicyVersion: "1.0.0",
     targetLayers: [3],
@@ -208,7 +210,7 @@ const RULE_REGISTRY_INTERNAL = {
       "Subscription and entitlement states should be traceable in governance events to support review workflows.",
     sourceReferenceKey: "canonical-governance:SUBS-001",
     domain: "governance",
-    description: "Ensures subscription-related governance actions are traceable.",
+    description: "Metadata display: Subscription-related governance actions are traceable.",
     documentReference: "Canonical Governance Rules",
     introducedInPolicyVersion: "1.0.0",
     targetLayers: [4],
@@ -222,7 +224,7 @@ const RULE_REGISTRY_INTERNAL = {
       "Interfaces should be defined such that they can be traced to producing/consuming systems in dependency maps.",
     sourceReferenceKey: "canonical-governance:INTF-001",
     domain: "governance",
-    description: "Supports rendering upstream/downstream interfaces for a system.",
+    description: "Metadata display: Supports rendering upstream/downstream interfaces for a system.",
     documentReference: "Canonical Governance Rules",
     introducedInPolicyVersion: "1.0.0",
     targetLayers: [5],
@@ -236,7 +238,7 @@ const RULE_REGISTRY_INTERNAL = {
       "When a product is linked, canonical product name and vendor details should be present for traceability.",
     sourceReferenceKey: "canonical-governance:PROD-001",
     domain: "governance",
-    description: "Improves traceability of vendor/product in the system inventory.",
+    description: "Metadata display: Improves traceability of vendor/product in the system inventory.",
     documentReference: "Canonical Governance Rules",
     introducedInPolicyVersion: "1.0.0",
     targetLayers: [6],
@@ -250,7 +252,7 @@ const RULE_REGISTRY_INTERNAL = {
       "Linked products should declare whether they are zero-cloud capable to support sovereign compliance views.",
     sourceReferenceKey: "canonical-governance:PROD-002",
     domain: "governance",
-    description: "Supports showing product zero-cloud capability in inventory tables.",
+    description: "Metadata display: Shows product zero-cloud capability in inventory tables.",
     documentReference: "Canonical Governance Rules",
     introducedInPolicyVersion: "1.0.0",
     targetLayers: [6],
