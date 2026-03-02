@@ -60,14 +60,35 @@ const EmptyRow = ({ cols, label }) => (
  * Rule Trace is metadata-only and derived deterministically from the local rule registry.
  */
 function SystemListItem({ system, isSelected, onSelect }) {
-  const rules = useMemo(() => getRulesForSystem(system), [system]);
-
   const [traceOpen, setTraceOpen] = useState(false);
 
-  // Reset open state if the list is reloaded and we receive a different system instance.
+  // Lazily computed rule list for this row.
+  // null => not computed yet (so we avoid per-row work until the collapsible is opened)
+  const [rules, setRules] = useState(null);
+
+  // Reset open/computed state if the list is reloaded and we receive a different system instance.
   useEffect(() => {
     setTraceOpen(false);
+    setRules(null);
   }, [system?.system_id]);
+
+  // Compute rules only when the user opens the Rule Trace section (performance optimization).
+  useEffect(() => {
+    if (!traceOpen) return;
+    if (rules !== null) return;
+
+    try {
+      // Deterministic + pure selector; safe to call lazily here.
+      setRules(getRulesForSystem(system));
+    } catch (e) {
+      // Defensive: Rule Trace is metadata-only; if something goes wrong, fail closed.
+      // eslint-disable-next-line no-console
+      console.error("Failed to compute rules for system:", system?.system_id, e);
+      setRules(Object.freeze([]));
+    }
+  }, [rules, system, traceOpen]);
+
+  const computedRuleCount = rules === null ? "…" : rules.length;
 
   return (
     <div
@@ -132,7 +153,7 @@ function SystemListItem({ system, isSelected, onSelect }) {
                   Rule Trace
                 </span>
                 <span className="text-[10px] font-mono px-1.5 py-0.5 rounded border border-slate-800 bg-[#0d0d14] text-slate-500">
-                  {rules.length}
+                  {computedRuleCount}
                 </span>
               </div>
 
@@ -144,7 +165,11 @@ function SystemListItem({ system, isSelected, onSelect }) {
 
           <CollapsibleContent>
             <div className="mt-2 bg-[#0d0d14] border border-slate-800 rounded-lg overflow-hidden">
-              {rules.length === 0 ? (
+              {rules === null ? (
+                <div className="px-3 py-3 text-xs text-slate-600">
+                  Loading rule trace…
+                </div>
+              ) : rules.length === 0 ? (
                 <div className="px-3 py-3 text-xs text-slate-600">
                   No rules traced for this system.
                 </div>
