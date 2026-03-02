@@ -23,7 +23,7 @@ export interface ApiPaginatedResponse<TItem> {
 
 /* ─────────────────────────────────────────────────────────────────────────────
  * Estate Health
- * ────────────────────────────────────────────────────────────────────────────*/
+ * ──────────────────────────────────────────────────────────────────────────── */
 
 export interface ApiEstateHealthResponse {
   total_systems: number;
@@ -43,7 +43,7 @@ export interface ApiEstateHealthResponse {
 
 /* ─────────────────────────────────────────────────────────────────────────────
  * Systems
- * ────────────────────────────────────────────────────────────────────────────*/
+ * ──────────────────────────────────────────────────────────────────────────── */
 
 export interface ApiSystemSummary {
   system_id: string;
@@ -108,25 +108,30 @@ export interface ApiSystemDependencyMap {
   components: ApiDependencyMapComponent[];
 }
 
-export interface ApiEvaluationHistoryViolation {
+/**
+ * Evaluation history (backend evaluation events).
+ *
+ * Strictly modeled to match only what GovernanceTraceView consumes.
+ */
+export interface ApiViolation {
   rule_code: string;
 }
 
-export interface ApiEvaluationHistoryItem {
+export interface ApiEvaluationEvent {
   event_id: string;
   triggered_at: ApiIsoDateTime;
   event_type: string;
   outcome: Outcome;
 
   triggered_by?: string | null;
-  violations?: ApiEvaluationHistoryViolation[] | null;
+  violations?: ApiViolation[] | null;
 }
 
-export type ApiEvaluationHistoryResponse = ApiPaginatedResponse<ApiEvaluationHistoryItem>;
+export type ApiEvaluationHistoryResponse = ApiPaginatedResponse<ApiEvaluationEvent>;
 
 /* ─────────────────────────────────────────────────────────────────────────────
  * Amendments
- * ────────────────────────────────────────────────────────────────────────────*/
+ * ──────────────────────────────────────────────────────────────────────────── */
 
 export type ApiAmendmentState =
   | "PROPOSED"
@@ -222,7 +227,7 @@ export interface ApiImpactSimulationResponse {
 
 /* ─────────────────────────────────────────────────────────────────────────────
  * Governance trace
- * ────────────────────────────────────────────────────────────────────────────*/
+ * ──────────────────────────────────────────────────────────────────────────── */
 
 /**
  * The trace endpoint is consumed defensively (multiple possible timestamp/id keys).

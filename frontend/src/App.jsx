@@ -4,7 +4,7 @@ import Layout from "./components/Layout.jsx";
 import EstateOverview from "./views/EstateOverview.jsx";
 import SystemExplorer from "./views/SystemExplorer.jsx";
 import AmendmentConsole from "./views/AmendmentConsole.jsx";
-import GovernanceTraceView from "./views/GovernanceTraceView.jsx";
+import GovernanceTraceView from "./views/GovernanceTraceView.tsx";
 
 function App() {
   return (
