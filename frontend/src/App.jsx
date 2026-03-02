@@ -1,10 +1,10 @@
 import React from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import Layout from "./components/Layout";
-import EstateOverview from "./views/EstateOverview";
-import SystemExplorer from "./views/SystemExplorer";
-import AmendmentConsole from "./views/AmendmentConsole";
-import GovernanceTraceView from "./views/GovernanceTraceView";
+import Layout from "./components/Layout.jsx";
+import EstateOverview from "./views/EstateOverview.jsx";
+import SystemExplorer from "./views/SystemExplorer.jsx";
+import AmendmentConsole from "./views/AmendmentConsole.jsx";
+import GovernanceTraceView from "./views/GovernanceTraceView.jsx";
 
 function App() {
   return (

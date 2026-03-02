@@ -6,7 +6,7 @@ import userEvent from "@testing-library/user-event";
 import api from "../api/client";
 import * as ruleRegistry from "../engine/ruleRegistry";
 
-import SystemExplorer from "./SystemExplorer";
+import SystemExplorer from "./SystemExplorer.jsx";
 
 // Mock the axios client used by SystemExplorer so no real network is performed.
 jest.mock("../api/client", () => {

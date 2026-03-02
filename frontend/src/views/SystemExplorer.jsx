@@ -11,7 +11,7 @@ import {
   ChevronLeft,
 } from "lucide-react";
 import api from "../api/client";
-import SovereigntyBadge from "../components/SovereigntyBadge";
+import SovereigntyBadge from "../components/SovereigntyBadge.jsx";
 import { getRuleMetadata } from "../engine/ruleRegistry";
 import { getRulesForSystem } from "../engine/ruleSelectors";
 import {
