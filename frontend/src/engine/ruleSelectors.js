@@ -3,7 +3,8 @@
  *
  * IMPORTANT:
  * - Metadata-only: selectors must not execute rules, score, or mutate the registry.
- * - Deterministic: results must be stably ordered.
+ * - Deterministic: results must be ordered deterministically without relying on engine sort stability.
+ * - Strict purity: no module-level mutable caches or memoization state.
  */
 
 import { listRuleMetadata } from "./ruleRegistry";
@@ -40,7 +41,9 @@ function normalizeRefs(value) {
       obj.code,
     ];
     return candidates
-      .flatMap((v) => (typeof v === "string" || typeof v === "number" ? [String(v)] : []))
+      .flatMap((v) =>
+        typeof v === "string" || typeof v === "number" ? [String(v)] : []
+      )
       .filter(Boolean);
   }
 
@@ -104,47 +107,95 @@ function ruleReferencesSystem(entry, system) {
 }
 
 /**
- * Memoization cache:
- * - Keyed by system_id if available, else system_name, else object reference fallback.
- * - Safe for frontend usage; does not mutate registry; cache only affects performance.
+ * Deterministic string comparator that does NOT depend on locale.
+ *
+ * @param {unknown} a
+ * @param {unknown} b
+ * @returns {number}
  */
-const _memo = new Map();
+function compareStringsDeterministic(a, b) {
+  const sa = String(a ?? "");
+  const sb = String(b ?? "");
+  if (sa === sb) return 0;
+  return sa < sb ? -1 : 1;
+}
+
+/**
+ * Deterministic comparator for rule metadata entries.
+ *
+ * Tie-breakers are explicit so ordering is deterministic even if the JS engine's
+ * `.sort()` is not stable.
+ *
+ * @param {any} a
+ * @param {any} b
+ * @param {Map<any, number>} registryIndexByIdentity
+ * @returns {number}
+ */
+function compareRuleMetadataDeterministic(a, b, registryIndexByIdentity) {
+  // Primary: ruleCode
+  let c = compareStringsDeterministic(a?.ruleCode, b?.ruleCode);
+  if (c !== 0) return c;
+
+  // Secondary keys (explicit tie-breakers)
+  c = compareStringsDeterministic(a?.domain, b?.domain);
+  if (c !== 0) return c;
+
+  c = compareStringsDeterministic(
+    a?.introducedInPolicyVersion,
+    b?.introducedInPolicyVersion
+  );
+  if (c !== 0) return c;
+
+  c = compareStringsDeterministic(a?.documentReference, b?.documentReference);
+  if (c !== 0) return c;
+
+  c = compareStringsDeterministic(a?.description, b?.description);
+  if (c !== 0) return c;
+
+  // Final tie-breaker: authoritative registry order (unique by identity).
+  const ia = registryIndexByIdentity.get(a);
+  const ib = registryIndexByIdentity.get(b);
+  const fa = typeof ia === "number" ? ia : Number.MAX_SAFE_INTEGER;
+  const fb = typeof ib === "number" ? ib : Number.MAX_SAFE_INTEGER;
+  if (fa === fb) return 0;
+  return fa < fb ? -1 : 1;
+}
 
 /**
  * PUBLIC_INTERFACE
  * Get rule metadata entries that reference a given system.
  *
  * Deterministic ordering:
- * - Alphabetical by ruleCode (fallback: empty string).
+ * - ruleCode, then domain, then introducedInPolicyVersion, then documentReference, then description,
+ *   then registry order as a final tie-breaker.
  *
- * Purity:
+ * Strict purity:
+ * - No module-level caches/memoization; output depends only on inputs and the frozen registry list.
  * - Does not mutate the registry or system objects.
  * - No backend/API calls.
  *
  * @param {object|null|undefined} system - System object (as returned by `/systems`).
- * @returns {readonly any[]} Readonly array of rule metadata entries referencing the system.
+ * @returns {readonly any[]} Readonly (frozen) array of rule metadata entries referencing the system.
  */
 export function getRulesForSystem(system) {
   if (!system) return Object.freeze([]);
 
-  const systemId = system?.system_id ?? system?.systemId ?? system?.id;
-  const systemName = system?.system_name ?? system?.systemName ?? system?.name;
-  const key =
-    (systemId !== undefined && systemId !== null && String(systemId).length > 0
-      ? `id:${String(systemId)}`
-      : systemName
-        ? `name:${String(systemName)}`
-        : `ref:${String(Object.prototype.toString.call(system))}`) ?? "unknown";
+  // Note: listRuleMetadata() returns a frozen list in authoritative order.
+  const registry = listRuleMetadata();
 
-  const cached = _memo.get(key);
-  if (cached) return cached;
+  // Build an identity->index map locally (no module state) to enable a deterministic final tie-breaker.
+  /** @type {Map<any, number>} */
+  const registryIndexByIdentity = new Map();
+  for (let i = 0; i < registry.length; i += 1) {
+    registryIndexByIdentity.set(registry[i], i);
+  }
 
-  const rules = listRuleMetadata()
+  const rules = registry
     .filter((entry) => ruleReferencesSystem(entry, system))
     .slice()
-    .sort((a, b) => String(a?.ruleCode ?? "").localeCompare(String(b?.ruleCode ?? "")));
+    .sort((a, b) =>
+      compareRuleMetadataDeterministic(a, b, registryIndexByIdentity)
+    );
 
-  const frozen = Object.freeze(rules);
-  _memo.set(key, frozen);
-  return frozen;
+  return Object.freeze(rules);
 }
