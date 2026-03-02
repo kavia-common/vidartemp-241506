@@ -13,7 +13,8 @@ import { listRuleMetadata } from "./ruleRegistry";
  * Normalize a candidate value into a flat list of string references.
  * Supports common shapes:
  *  - string
- *  - array of strings
+ *  - number
+ *  - array of strings/numbers
  *  - array of objects containing ids/names
  *  - object containing ids/names
  *
@@ -21,9 +22,9 @@ import { listRuleMetadata } from "./ruleRegistry";
  * @returns {string[]}
  */
 function normalizeRefs(value) {
-  if (!value) return [];
+  if (value === undefined || value === null) return [];
 
-  if (typeof value === "string") return [value];
+  if (typeof value === "string" || typeof value === "number") return [String(value)];
 
   if (Array.isArray(value)) {
     return value.flatMap((v) => normalizeRefs(v)).filter(Boolean);
@@ -32,6 +33,8 @@ function normalizeRefs(value) {
   if (typeof value === "object") {
     const obj = /** @type {Record<string, unknown>} */ (value);
     const candidates = [
+      obj.layer_id,
+      obj.layerId,
       obj.system_id,
       obj.systemId,
       obj.id,
@@ -51,16 +54,37 @@ function normalizeRefs(value) {
 }
 
 /**
- * Extract system reference strings from a registry entry.
+ * Extract target layer reference strings from a registry entry.
  * This is intentionally defensive: the registry may encode references under different fields.
  *
  * @param {any} entry
  * @returns {string[]}
  */
-function extractSystemRefsFromRule(entry) {
+function extractTargetLayersFromRule(entry) {
   if (!entry || typeof entry !== "object") return [];
 
-  // Common field names we may encounter over time. We DO NOT require all of these to exist.
+  const fields = [
+    "targetLayers",
+    "target_layers",
+    "layerIds",
+    "layer_ids",
+    "layers",
+  ];
+
+  const refs = fields.flatMap((k) => normalizeRefs(entry[k]));
+  return Array.from(new Set(refs));
+}
+
+/**
+ * Extract legacy system reference strings from a registry entry.
+ * Kept only as a backwards-compatible fallback (no wildcard behavior).
+ *
+ * @param {any} entry
+ * @returns {string[]}
+ */
+function extractLegacySystemRefsFromRule(entry) {
+  if (!entry || typeof entry !== "object") return [];
+
   const fields = [
     "systems",
     "systemIds",
@@ -80,6 +104,12 @@ function extractSystemRefsFromRule(entry) {
 /**
  * Decide whether a given rule registry entry references the given system.
  *
+ * Primary matching (required by spec):
+ * - rule.targetLayers includes system.layer_id
+ *
+ * Legacy fallback (only if no targetLayers are present):
+ * - match by system_id / system_name if the rule stores explicit references
+ *
  * @param {any} entry
  * @param {any} system
  * @returns {boolean}
@@ -87,6 +117,23 @@ function extractSystemRefsFromRule(entry) {
 function ruleReferencesSystem(entry, system) {
   if (!entry || !system) return false;
 
+  const systemLayerId = system?.layer_id ?? system?.layerId ?? system?.layer;
+  const layerKeys = normalizeRefs(systemLayerId);
+
+  // Required deterministic targeting: match targetLayers -> system.layer_id
+  const targetLayers = extractTargetLayersFromRule(entry);
+  if (targetLayers.length > 0) {
+    if (layerKeys.length === 0) return false;
+
+    const layerKeysLower = new Set(layerKeys.map((s) => s.toLowerCase()));
+    for (const ref of targetLayers) {
+      const r = String(ref).toLowerCase();
+      if (layerKeysLower.has(r)) return true;
+    }
+    return false;
+  }
+
+  // Legacy fallback: explicit matching only (no wildcard semantics).
   const systemId = system?.system_id ?? system?.systemId ?? system?.id;
   const systemName = system?.system_name ?? system?.systemName ?? system?.name;
 
@@ -97,20 +144,7 @@ function ruleReferencesSystem(entry, system) {
   if (systemKeys.length === 0) return false;
 
   const systemKeysLower = new Set(systemKeys.map((s) => s.toLowerCase()));
-  const refs = extractSystemRefsFromRule(entry);
-
-  // Metadata-only wildcard support:
-  // If the registry entry declares "*" (or a common equivalent) as a target, it is treated
-  // as "applies to all systems" for Rule Trace display purposes.
-  const refsLower = new Set(refs.map((r) => String(r).toLowerCase()));
-  if (
-    refsLower.has("*") ||
-    refsLower.has("all") ||
-    refsLower.has("all_systems") ||
-    refsLower.has("all-systems")
-  ) {
-    return true;
-  }
+  const refs = extractLegacySystemRefsFromRule(entry);
 
   for (const ref of refs) {
     const r = String(ref).toLowerCase();
@@ -177,6 +211,10 @@ function compareRuleMetadataDeterministic(a, b, registryIndexByIdentity) {
 /**
  * PUBLIC_INTERFACE
  * Get rule metadata entries that reference a given system.
+ *
+ * Matching semantics:
+ * - A rule applies to a system if and only if `rule.targetLayers` includes `system.layer_id`
+ *   (string/number normalized match).
  *
  * Deterministic ordering:
  * - ruleCode, then domain, then introducedInPolicyVersion, then documentReference, then description,

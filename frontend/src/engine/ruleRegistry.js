@@ -33,8 +33,11 @@ export const POLICY_VERSION = "1.0.0";
  * - documentReference
  * - introducedInPolicyVersion
  *
- * System reference fields (metadata-only):
- * - targets / systems / systemIds / system_names (any of these may be used by selectors)
+ * Targeting fields (metadata-only):
+ * - targetLayers: list of system.layer_id values this rule traces to (preferred)
+ *
+ * Legacy (still tolerated by selectors for backwards compatibility, but should not be used):
+ * - targets / systems / systemIds / system_names
  *
  * NOTE: This registry is metadata-only. Do not add evaluation logic here.
  *
@@ -49,10 +52,11 @@ export const POLICY_VERSION = "1.0.0";
  * @property {string} description - Short summary (kept for existing UI).
  * @property {string} documentReference - Human readable document reference (kept for existing UI).
  * @property {string} introducedInPolicyVersion - Policy version where rule was introduced.
- * @property {string[]|undefined} targets - Metadata-only system reference(s). May include "*" for all systems.
- * @property {string[]|undefined} systems - Metadata-only system reference(s) (alias).
- * @property {string[]|undefined} systemIds - Metadata-only system ID reference(s) (alias).
- * @property {string[]|undefined} system_names - Metadata-only system name reference(s) (alias).
+ * @property {(string|number)[]|undefined} targetLayers - Metadata-only layer targeting; matched against system.layer_id.
+ * @property {string[]|undefined} targets - DEPRECATED legacy targeting field (do not use).
+ * @property {string[]|undefined} systems - DEPRECATED legacy targeting field (do not use).
+ * @property {string[]|undefined} systemIds - DEPRECATED legacy targeting field (do not use).
+ * @property {string[]|undefined} system_names - DEPRECATED legacy targeting field (do not use).
  */
 
 /**
@@ -77,10 +81,9 @@ export const POLICY_VERSION = "1.0.0";
  *
  * NOTE: This registry is metadata-only. Do not add evaluation logic here.
  *
- * System references:
- * - For now, rules are associated to systems at a metadata level using a deterministic wildcard
- *   target of "*" (meaning "applies to all systems") so Rule Trace UIs can render non-empty,
- *   while remaining metadata-only.
+ * Targeting:
+ * - Rules are associated to systems *only* via `targetLayers` (matched against `system.layer_id`).
+ * - No wildcard targets are used.
  */
 const RULE_REGISTRY_INTERNAL = {
   // Append-only ordering (authoritative list order). Do not reorder.
@@ -96,7 +99,7 @@ const RULE_REGISTRY_INTERNAL = {
     description: "Ensures each system has an explicit sovereignty classification.",
     documentReference: "Canonical Governance Rules",
     introducedInPolicyVersion: "1.0.0",
-    targets: ["*"],
+    targetLayers: [1],
   },
   "SOVR-002": {
     ruleCode: "SOVR-002",
@@ -110,7 +113,7 @@ const RULE_REGISTRY_INTERNAL = {
     description: "Ensures the zero-cloud requirement is traceable in metadata.",
     documentReference: "Canonical Governance Rules",
     introducedInPolicyVersion: "1.0.0",
-    targets: ["*"],
+    targetLayers: [1],
   },
   "SOVR-003": {
     ruleCode: "SOVR-003",
@@ -124,7 +127,7 @@ const RULE_REGISTRY_INTERNAL = {
     description: "Tracks whether a system is active/inactive for traceability.",
     documentReference: "Canonical Governance Rules",
     introducedInPolicyVersion: "1.0.0",
-    targets: ["*"],
+    targetLayers: [1],
   },
   "SOVR-004": {
     ruleCode: "SOVR-004",
@@ -138,7 +141,7 @@ const RULE_REGISTRY_INTERNAL = {
     description: "Ensures systems can be grouped and explored by layer.",
     documentReference: "Canonical Governance Rules",
     introducedInPolicyVersion: "1.0.0",
-    targets: ["*"],
+    targetLayers: [1],
   },
   "COMP-001": {
     ruleCode: "COMP-001",
@@ -152,7 +155,7 @@ const RULE_REGISTRY_INTERNAL = {
     description: "Ensures component inventory can be traced to a system boundary.",
     documentReference: "Canonical Governance Rules",
     introducedInPolicyVersion: "1.0.0",
-    targets: ["*"],
+    targetLayers: [2],
   },
   "CINT-001": {
     ruleCode: "CINT-001",
@@ -166,7 +169,7 @@ const RULE_REGISTRY_INTERNAL = {
     description: "Supports deterministic dependency map rendering (metadata-only).",
     documentReference: "Canonical Governance Rules",
     introducedInPolicyVersion: "1.0.0",
-    targets: ["*"],
+    targetLayers: [3],
   },
   "CINT-002": {
     ruleCode: "CINT-002",
@@ -180,7 +183,7 @@ const RULE_REGISTRY_INTERNAL = {
     description: "Keeps dependency relationships consistent for exploration views.",
     documentReference: "Canonical Governance Rules",
     introducedInPolicyVersion: "1.0.0",
-    targets: ["*"],
+    targetLayers: [3],
   },
   "CINT-003": {
     ruleCode: "CINT-003",
@@ -194,7 +197,7 @@ const RULE_REGISTRY_INTERNAL = {
     description: "Improves product traceability in component inventory views.",
     documentReference: "Canonical Governance Rules",
     introducedInPolicyVersion: "1.0.0",
-    targets: ["*"],
+    targetLayers: [3],
   },
   "SUBS-001": {
     ruleCode: "SUBS-001",
@@ -208,7 +211,7 @@ const RULE_REGISTRY_INTERNAL = {
     description: "Ensures subscription-related governance actions are traceable.",
     documentReference: "Canonical Governance Rules",
     introducedInPolicyVersion: "1.0.0",
-    targets: ["*"],
+    targetLayers: [4],
   },
   "INTF-001": {
     ruleCode: "INTF-001",
@@ -222,7 +225,7 @@ const RULE_REGISTRY_INTERNAL = {
     description: "Supports rendering upstream/downstream interfaces for a system.",
     documentReference: "Canonical Governance Rules",
     introducedInPolicyVersion: "1.0.0",
-    targets: ["*"],
+    targetLayers: [5],
   },
   "PROD-001": {
     ruleCode: "PROD-001",
@@ -236,7 +239,7 @@ const RULE_REGISTRY_INTERNAL = {
     description: "Improves traceability of vendor/product in the system inventory.",
     documentReference: "Canonical Governance Rules",
     introducedInPolicyVersion: "1.0.0",
-    targets: ["*"],
+    targetLayers: [6],
   },
   "PROD-002": {
     ruleCode: "PROD-002",
@@ -250,7 +253,7 @@ const RULE_REGISTRY_INTERNAL = {
     description: "Supports showing product zero-cloud capability in inventory tables.",
     documentReference: "Canonical Governance Rules",
     introducedInPolicyVersion: "1.0.0",
-    targets: ["*"],
+    targetLayers: [6],
   },
 };
 
