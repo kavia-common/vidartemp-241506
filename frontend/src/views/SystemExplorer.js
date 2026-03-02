@@ -6,6 +6,7 @@ import {
 import api from "../api/client";
 import SovereigntyBadge from "../components/SovereigntyBadge";
 import { getRiskProfileForSystem } from "../lib/getRiskProfileForSystem";
+import { getGovernanceDriftStatus } from "../lib/getGovernanceDriftStatus";
 import { getLayerConsistencyReport } from "../lib/getLayerConsistencyReport";
 
 /* ── small helpers ── */
@@ -407,8 +408,35 @@ function SeverityCountBadge({ label, value, tone }) {
   );
 }
 
+function GovernanceDriftBadge({ status }) {
+  const map = {
+    stable: "bg-emerald-500/15 text-emerald-300 border-emerald-500/30",
+    drifted: "bg-red-500/15 text-red-300 border-red-500/30",
+    "no-baseline": "bg-slate-700/30 text-slate-300 border-slate-700",
+  };
+
+  const label =
+    status === "stable" ? "Stable" : status === "drifted" ? "Drifted" : "No Baseline";
+
+  return (
+    <span
+      className={`inline-flex px-2 py-0.5 rounded border text-[10px] font-mono font-semibold ${
+        map[status] ?? map["no-baseline"]
+      }`}
+    >
+      {label}
+    </span>
+  );
+}
+
 function SystemListItem({ system, isSelected, onSelect }) {
   const riskProfile = useMemo(() => getRiskProfileForSystem(system), [system]);
+
+  // Per requirements: compute drift status using useMemo per system row.
+  const drift = useMemo(() => {
+    // Pass the derived current profile without mutating the original system object.
+    return getGovernanceDriftStatus({ ...system, currentRiskProfile: riskProfile });
+  }, [system, riskProfile]);
 
   return (
     <button
@@ -448,9 +476,13 @@ function SystemListItem({ system, isSelected, onSelect }) {
 
           {/* Risk Profile (metadata-derived only) */}
           <div className="mt-2">
-            <span className="text-[10px] text-slate-600 font-mono uppercase tracking-wide">
-              Risk Profile
-            </span>
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-[10px] text-slate-600 font-mono uppercase tracking-wide">
+                Risk Profile
+              </span>
+              <GovernanceDriftBadge status={drift.status} />
+            </div>
+
             <div className="mt-1.5 flex flex-wrap gap-1.5">
               <SeverityCountBadge label="Total" value={riskProfile.totalRules} tone="slate" />
               <SeverityCountBadge label="Critical" value={riskProfile.criticalCount} tone="red" />
