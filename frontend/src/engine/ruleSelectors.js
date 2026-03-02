@@ -99,6 +99,19 @@ function ruleReferencesSystem(entry, system) {
   const systemKeysLower = new Set(systemKeys.map((s) => s.toLowerCase()));
   const refs = extractSystemRefsFromRule(entry);
 
+  // Metadata-only wildcard support:
+  // If the registry entry declares "*" (or a common equivalent) as a target, it is treated
+  // as "applies to all systems" for Rule Trace display purposes.
+  const refsLower = new Set(refs.map((r) => String(r).toLowerCase()));
+  if (
+    refsLower.has("*") ||
+    refsLower.has("all") ||
+    refsLower.has("all_systems") ||
+    refsLower.has("all-systems")
+  ) {
+    return true;
+  }
+
   for (const ref of refs) {
     const r = String(ref).toLowerCase();
     if (systemKeysLower.has(r)) return true;
