@@ -59,6 +59,9 @@ function assertEvaluationHistoryResponse(
     if (typeof ev.target_system_id !== "string" || ev.target_system_id.length === 0) {
       throw new Error(`Invalid evaluation event at items[${idx}]: missing 'target_system_id'.`);
     }
+    if (typeof ev.target_system_name !== "string" || ev.target_system_name.length === 0) {
+      throw new Error(`Invalid evaluation event at items[${idx}]: missing 'target_system_name'.`);
+    }
     if (!Array.isArray(ev.rule_codes_triggered)) {
       throw new Error(
         `Invalid evaluation event at items[${idx}]: 'rule_codes_triggered' must be an array.`,
@@ -94,7 +97,7 @@ export default function GovernanceTraceView() {
   const [page] = useState<number>(1);
   const [pageSize] = useState<number>(50);
 
-  const endpoint = useMemo(() => "/api/evaluation", []);
+  const endpoint = useMemo(() => "/api/evaluation-history", []);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -176,6 +179,7 @@ export default function GovernanceTraceView() {
               const outcome: Outcome = ev.outcome;
               const systemId = ev.system_id;
               const systemName = ev.system_name;
+              const targetSystemName = ev.target_system_name;
               const triggeredBy = ev.triggered_by ?? "—";
               const ruleCodes = ev.rule_codes_triggered ?? [];
               const criticalCount = ev.critical_count ?? 0;
@@ -208,6 +212,7 @@ export default function GovernanceTraceView() {
                       <div className="flex items-center gap-3 mt-1 text-[10px] text-slate-600">
                         <span>Event: {String(eventId).substring(0, 8)}</span>
                         <span>System: {systemName}</span>
+                        <span>Target: {targetSystemName}</span>
                         <span>By: {triggeredBy}</span>
                       </div>
 

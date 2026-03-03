@@ -23,7 +23,7 @@ export interface ApiPaginatedResponse<TItem> {
 
 /* ─────────────────────────────────────────────────────────────────────────────
  * Estate Health
- * ──────────────────────────────────────────────────────────────────────────── */
+ * ───────────────────────────────────────────────────────────────────────────── */
 
 export interface ApiEstateHealthResponse {
   total_systems: number;
@@ -43,7 +43,7 @@ export interface ApiEstateHealthResponse {
 
 /* ─────────────────────────────────────────────────────────────────────────────
  * Systems
- * ──────────────────────────────────────────────────────────────────────────── */
+ * ───────────────────────────────────────────────────────────────────────────── */
 
 export interface ApiSystemSummary {
   system_id: string;
@@ -122,6 +122,7 @@ export interface ApiEvaluationEvent {
   system_id: string;
   system_name: string;
   target_system_id: string;
+  target_system_name: string;
   rule_codes_triggered: string[];
   critical_count: number;
   warning_count: number;
@@ -133,7 +134,7 @@ export type ApiEvaluationHistoryResponse = ApiPaginatedResponse<ApiEvaluationEve
 
 /* ─────────────────────────────────────────────────────────────────────────────
  * Amendments
- * ──────────────────────────────────────────────────────────────────────────── */
+ * ───────────────────────────────────────────────────────────────────────────── */
 
 export type ApiAmendmentState =
   | "PROPOSED"
@@ -229,7 +230,7 @@ export interface ApiImpactSimulationResponse {
 
 /* ─────────────────────────────────────────────────────────────────────────────
  * Governance trace
- * ──────────────────────────────────────────────────────────────────────────── */
+ * ───────────────────────────────────────────────────────────────────────────── */
 
 /**
  * The trace endpoint is consumed defensively (multiple possible timestamp/id keys).
