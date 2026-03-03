@@ -91,7 +91,7 @@ export default function GovernanceTraceView() {
   const [page] = useState<number>(1);
   const [pageSize] = useState<number>(50);
 
-  const endpoint = useMemo(() => "/api/evaluation", []);
+  const endpoint = useMemo(() => "/evaluation", []);
 
   const load = useCallback(async () => {
     setLoading(true);
