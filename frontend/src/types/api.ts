@@ -120,12 +120,12 @@ export interface ApiEvaluationEvent {
   outcome: Outcome;
 
   target_system_id: string;
-  target_system_name: string;
   critical_count: number;
   warning_count: number;
   informational_count: number;
 
-  triggered_by?: string | null;
+  triggered_by: string;
+  rules_snapshot_hash: string;
 }
 
 export type ApiEvaluationHistoryResponse = ApiPaginatedResponse<ApiEvaluationEvent>;
