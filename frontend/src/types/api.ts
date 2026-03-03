@@ -121,6 +121,7 @@ export interface ApiEvaluationEvent {
 
   system_id: string;
   system_name: string;
+  target_system_id: string;
   rule_codes_triggered: string[];
   critical_count: number;
   warning_count: number;

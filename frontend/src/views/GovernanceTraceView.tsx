@@ -56,6 +56,9 @@ function assertEvaluationHistoryResponse(
     if (typeof ev.system_name !== "string" || ev.system_name.length === 0) {
       throw new Error(`Invalid evaluation event at items[${idx}]: missing 'system_name'.`);
     }
+    if (typeof ev.target_system_id !== "string" || ev.target_system_id.length === 0) {
+      throw new Error(`Invalid evaluation event at items[${idx}]: missing 'target_system_id'.`);
+    }
     if (!Array.isArray(ev.rule_codes_triggered)) {
       throw new Error(
         `Invalid evaluation event at items[${idx}]: 'rule_codes_triggered' must be an array.`,
@@ -91,7 +94,7 @@ export default function GovernanceTraceView() {
   const [page] = useState<number>(1);
   const [pageSize] = useState<number>(50);
 
-  const endpoint = useMemo(() => "/api/evaluation-history", []);
+  const endpoint = useMemo(() => "/api/evaluation", []);
 
   const load = useCallback(async () => {
     setLoading(true);
