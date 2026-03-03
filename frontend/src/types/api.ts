@@ -119,13 +119,11 @@ export interface ApiEvaluationEvent {
   event_type: string;
   outcome: Outcome;
 
-  system_id: string;
-  system_name: string;
   target_system_id: string;
   target_system_name: string;
-  rule_codes_triggered: string[];
   critical_count: number;
   warning_count: number;
+  informational_count: number;
 
   triggered_by?: string | null;
 }

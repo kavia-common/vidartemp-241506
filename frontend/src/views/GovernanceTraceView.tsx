@@ -50,22 +50,11 @@ function assertEvaluationHistoryResponse(
     if (typeof ev.outcome !== "string" || ev.outcome.length === 0) {
       throw new Error(`Invalid evaluation event at items[${idx}]: missing 'outcome'.`);
     }
-    if (typeof ev.system_id !== "string" || ev.system_id.length === 0) {
-      throw new Error(`Invalid evaluation event at items[${idx}]: missing 'system_id'.`);
-    }
-    if (typeof ev.system_name !== "string" || ev.system_name.length === 0) {
-      throw new Error(`Invalid evaluation event at items[${idx}]: missing 'system_name'.`);
-    }
     if (typeof ev.target_system_id !== "string" || ev.target_system_id.length === 0) {
       throw new Error(`Invalid evaluation event at items[${idx}]: missing 'target_system_id'.`);
     }
     if (typeof ev.target_system_name !== "string" || ev.target_system_name.length === 0) {
       throw new Error(`Invalid evaluation event at items[${idx}]: missing 'target_system_name'.`);
-    }
-    if (!Array.isArray(ev.rule_codes_triggered)) {
-      throw new Error(
-        `Invalid evaluation event at items[${idx}]: 'rule_codes_triggered' must be an array.`,
-      );
     }
     if (typeof ev.critical_count !== "number") {
       throw new Error(
@@ -75,6 +64,11 @@ function assertEvaluationHistoryResponse(
     if (typeof ev.warning_count !== "number") {
       throw new Error(
         `Invalid evaluation event at items[${idx}]: 'warning_count' must be a number.`,
+      );
+    }
+    if (typeof ev.informational_count !== "number") {
+      throw new Error(
+        `Invalid evaluation event at items[${idx}]: 'informational_count' must be a number.`,
       );
     }
 
@@ -97,7 +91,7 @@ export default function GovernanceTraceView() {
   const [page] = useState<number>(1);
   const [pageSize] = useState<number>(50);
 
-  const endpoint = useMemo(() => "/api/evaluation-history", []);
+  const endpoint = useMemo(() => "/api/evaluation", []);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -177,13 +171,12 @@ export default function GovernanceTraceView() {
               const triggeredAt = ev.triggered_at;
               const eventType = ev.event_type;
               const outcome: Outcome = ev.outcome;
-              const systemId = ev.system_id;
-              const systemName = ev.system_name;
+              const targetSystemId = ev.target_system_id;
               const targetSystemName = ev.target_system_name;
               const triggeredBy = ev.triggered_by ?? "—";
-              const ruleCodes = ev.rule_codes_triggered ?? [];
               const criticalCount = ev.critical_count ?? 0;
               const warningCount = ev.warning_count ?? 0;
+              const informationalCount = ev.informational_count ?? 0;
 
               let outcomeColor = "text-slate-400";
               if (outcome === "ALLOW") outcomeColor = "text-green-400";
@@ -207,32 +200,19 @@ export default function GovernanceTraceView() {
                             {warningCount} warning
                           </span>
                         )}
+                        {informationalCount > 0 && (
+                          <span className="text-[10px] px-1.5 py-0.5 bg-blue-500/20 text-blue-400 border border-blue-500/30 rounded">
+                            {informationalCount} informational
+                          </span>
+                        )}
                       </div>
 
                       <div className="flex items-center gap-3 mt-1 text-[10px] text-slate-600">
                         <span>Event: {String(eventId).substring(0, 8)}</span>
-                        <span>System: {systemName}</span>
+                        <span>Target System ID: {targetSystemId}</span>
                         <span>Target: {targetSystemName}</span>
                         <span>By: {triggeredBy}</span>
                       </div>
-
-                      {ruleCodes.length > 0 && (
-                        <div className="mt-2 flex flex-wrap gap-1">
-                          {ruleCodes.slice(0, 5).map((code, cIdx) => (
-                            <span
-                              key={cIdx}
-                              className="text-[9px] px-1.5 py-0.5 bg-slate-800/50 border border-slate-700 rounded font-mono text-slate-400"
-                            >
-                              {code}
-                            </span>
-                          ))}
-                          {ruleCodes.length > 5 && (
-                            <span className="text-[9px] text-slate-600">
-                              +{ruleCodes.length - 5} more
-                            </span>
-                          )}
-                        </div>
-                      )}
                     </div>
 
                     <p className="text-[10px] text-slate-600 font-mono whitespace-nowrap">
